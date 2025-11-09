@@ -1,10 +1,14 @@
 package com.lotto.domain.numberreceiver;
 
+import com.lotto.AdjustableClock;
 import com.lotto.domain.numberreceiver.dto.InputNumbersResultDto;
 import com.lotto.domain.numberreceiver.dto.TicketDto;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
 
@@ -13,9 +17,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NumberReceiverFacadeTest {
 
+
+    AdjustableClock clock = new AdjustableClock(LocalDateTime.of(2022, 6, 22, 11, 0, 0)
+                    .toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
+
     NumberReceiverFacade numberReceiverFacade = new NumberReceiverFacade(
             new NumberValidator(),
-            new InMemoryNumberReceiverRepository()
+            new InMemoryNumberReceiverRepository(),
+            clock
+
+
     );
 
     @Test
@@ -79,13 +90,15 @@ class NumberReceiverFacadeTest {
     }
 
     @Test
-    void should_save_ticket_when_user_gave_six_numbers(){
+    void should_return_save_ticket_when_user_gave_six_numbers(){
 
         //given
         Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
         InputNumbersResultDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
+
+        LocalDateTime date = LocalDateTime.of(2022, 6, 22, 11, 0, 0);
         //when
-        List<TicketDto> ticketDtos = numberReceiverFacade.userNumbers(LocalDateTime.now());
+        List<TicketDto> ticketDtos = numberReceiverFacade.userNumbers(result.drawDate());
 
         //then
         assertThat(ticketDtos).contains(
