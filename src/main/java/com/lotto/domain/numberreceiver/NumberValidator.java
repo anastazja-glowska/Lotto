@@ -3,8 +3,11 @@ package com.lotto.domain.numberreceiver;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 class NumberValidator {
@@ -13,6 +16,31 @@ class NumberValidator {
     public static final int MIN_NUMBER_FROM_USER = 1;
     public static final int MAX_NUMBER_FROM_USER = 99;
     public static final int MAX_ALL_NUMBERS_FROM_USER = 6;
+
+    List<ValidationInfo> validationInfos;
+
+    List<ValidationInfo> validateUserNumbers(Set<Integer> userNumbers) {
+        validationInfos = new LinkedList<>();
+
+        if(userNumbers.size() != MAX_ALL_NUMBERS_FROM_USER){
+            validationInfos.add(ValidationInfo.SIX_NUMBERS_ARE_NOT_PROVIDEN);
+        }
+
+        if(!areAllNumbersInRange(userNumbers)){
+            validationInfos.add(ValidationInfo.NUMBERS_NOT_IN_RANGE);
+        }
+
+        return validationInfos;
+
+
+
+    }
+
+    String allResultMessage(){
+        return validationInfos.stream()
+                .map(validationInfo -> validationInfo.message)
+                .collect(Collectors.joining(","));
+    }
 
 
 

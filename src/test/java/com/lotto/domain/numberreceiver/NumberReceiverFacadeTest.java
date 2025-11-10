@@ -1,11 +1,10 @@
 package com.lotto.domain.numberreceiver;
 
 import com.lotto.AdjustableClock;
-import com.lotto.domain.numberreceiver.dto.InputNumbersResultDto;
+import com.lotto.domain.numberreceiver.dto.InputNumbersResponseDto;
 import com.lotto.domain.numberreceiver.dto.TicketDto;
 import org.junit.jupiter.api.Test;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class NumberReceiverFacadeTest {
 
@@ -36,7 +34,7 @@ class NumberReceiverFacadeTest {
         Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
         //when
         
-        InputNumbersResultDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
+        InputNumbersResponseDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
 
         //then
         assertThat(result.message()).isEqualTo("success");
@@ -51,7 +49,7 @@ class NumberReceiverFacadeTest {
         Set<Integer> numbersFromUser = Set.of(1, 3, 4, 5, 6);
         //when
 
-        InputNumbersResultDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
+        InputNumbersResponseDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
 
 
         //then
@@ -67,7 +65,7 @@ class NumberReceiverFacadeTest {
         Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6, 7);
         //when
 
-        InputNumbersResultDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
+        InputNumbersResponseDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
 
 
         //then
@@ -82,7 +80,7 @@ class NumberReceiverFacadeTest {
 
         //when
 
-        InputNumbersResultDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
+        InputNumbersResponseDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
 
 
         //then
@@ -94,7 +92,7 @@ class NumberReceiverFacadeTest {
 
         //given
         Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
-        InputNumbersResultDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
+        InputNumbersResponseDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
 
         LocalDateTime date = LocalDateTime.of(2022, 6, 22, 11, 0, 0);
         //when
