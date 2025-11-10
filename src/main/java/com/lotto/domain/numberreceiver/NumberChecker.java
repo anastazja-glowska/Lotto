@@ -3,6 +3,7 @@ package com.lotto.domain.numberreceiver;
 import com.lotto.domain.numberreceiver.dto.InputNumbersResponseDto;
 import com.lotto.domain.numberreceiver.dto.TicketDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -13,12 +14,12 @@ import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Component
+@Log4j2
 class NumberChecker {
 
     private final NumberValidator numberValidator;
     private final DrawDateGenerator drawDateGenerator;
-    private final HashGenerator hashGenerator;
+    private final HashGenerable hashGenerator;
     private final TicketRepository ticketRepository;
 
 
@@ -37,7 +38,7 @@ class NumberChecker {
 
         TicketDto ticketDto = TicketMapper.mapFromTicket(ticket);
 
-        return new InputNumbersResponseDto(ValidationInfo.SUCCESS_MESSAGE.toString(), ticketDto);
+        return new InputNumbersResponseDto(ValidationInfo.SUCCESS_MESSAGE.message, ticketDto);
 
 
     }
@@ -49,14 +50,19 @@ class NumberChecker {
 
     List<TicketDto> retrieveAllTicketsByDrawDate(LocalDateTime drawDate){
         LocalDateTime nextDrawnDate = drawDateGenerator.getNextDrawnDate();
+        log.info("Draw date in numberChecker " + nextDrawnDate);
         if(drawDate.isAfter(nextDrawnDate)){
             return new ArrayList<>();
         }
 
-        return ticketRepository.findAllTicketsByDrawDate(drawDate).stream()
+        List<TicketDto> list = ticketRepository.findAllTicketsByDrawDate(drawDate).stream()
                 .filter(ticket -> ticket.drawDate().equals(drawDate))
                 .map(TicketMapper::mapFromTicket)
                 .toList();
+
+        log.info("Tickets dtos size after lambda " + list.size());
+
+        return list;
     }
 
     private Ticket saveTicket(Set<Integer> userNumbers, LocalDateTime nextDrawnDate, String ticketId) {

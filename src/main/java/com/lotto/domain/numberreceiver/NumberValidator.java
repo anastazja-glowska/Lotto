@@ -1,6 +1,7 @@
 package com.lotto.domain.numberreceiver;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -37,7 +38,7 @@ class NumberValidator {
     }
 
     String allResultMessage(){
-        return validationInfos.stream()
+        return this.validationInfos.stream()
                 .map(validationInfo -> validationInfo.message)
                 .collect(Collectors.joining(","));
     }

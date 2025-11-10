@@ -1,8 +1,11 @@
 package com.lotto.domain.numberreceiver;
 
 
+import org.springframework.stereotype.Service;
+
 import java.util.UUID;
 import java.util.function.Supplier;
+
 
 class HashGenerator implements HashGenerable{
 

@@ -1,6 +1,7 @@
 package com.lotto.domain.numberreceiver;
 
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.DayOfWeek;
