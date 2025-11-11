@@ -52,6 +52,7 @@ class NumberGeneratorFacadeTest {
         //then
         assertThat(winningNumbers).hasSize(6);
 
+
     }
 
     @Test

@@ -20,7 +20,9 @@ class WinnersEvaluator {
                 .map(ticket -> {
                     Integer countedMatchesHits = countMatchesHits(ticket, winningNumbers);
                     return createPlayerResult(ticket, countedMatchesHits, winningNumbers);
-                }).toList();
+                })
+                .filter(player -> player.isWinner())
+                .toList();
 
         return playerList;
     }

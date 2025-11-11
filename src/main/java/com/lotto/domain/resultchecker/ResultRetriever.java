@@ -26,7 +26,7 @@ class ResultRetriever {
         List<Ticket> ticketList = ResultCheckerMapper.mapFromTicketDto(tickets);
         WinningNumbersDto winningNumbersDto = numberGeneratorFacade.generateWinningNumbers();
         Set<Integer> winningNumbers = winningNumbersDto.getWinningNumbers();
-        if(winningNumbers.isEmpty() || winningNumbers == null){
+        if(winningNumbers == null || winningNumbers.isEmpty()){
             log.info("No winning numbers found");
             return AllPlayersDto.builder().build();
         }
