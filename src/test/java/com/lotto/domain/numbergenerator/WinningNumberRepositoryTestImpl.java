@@ -1,5 +1,6 @@
 package com.lotto.domain.numbergenerator;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,21 +9,47 @@ import org.springframework.data.repository.query.FluentQuery;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+@Log4j2
 class WinningNumberRepositoryTestImpl implements WinningNumberRepository{
 
+    Map<LocalDateTime, WinningNumbers> winningNumbersMap = new ConcurrentHashMap<>();
 
 
     @Override
     public Optional<WinningNumbers> findByDate(LocalDateTime date) {
-        return Optional.empty();
+
+        WinningNumbers winningNumbers = winningNumbersMap.get(date);
+
+        log.info("Found WinningNumbers: " + winningNumbers);
+
+        return Optional.ofNullable(winningNumbers);
     }
 
     @Override
     public boolean existsByDate(LocalDateTime date) {
+
+        WinningNumbers winningNumbers;
+        try{
+            winningNumbers = winningNumbersMap.get(date);
+            return true;
+        } catch (NullPointerException e){
+            log.error(e.getMessage() + "winning numbers are null" );
+        }
+
         return false;
+
+    }
+
+    @Override
+    public WinningNumbers save(WinningNumbers winningNumbers) {
+        winningNumbersMap.put(winningNumbers.date(), winningNumbers);
+        log.info("winning Numbers map size " + winningNumbersMap.size()) ;
+        return winningNumbers;
     }
 
     @Override
@@ -70,10 +97,7 @@ class WinningNumberRepositoryTestImpl implements WinningNumberRepository{
         return null;
     }
 
-    @Override
-    public <S extends WinningNumbers> S save(S entity) {
-        return null;
-    }
+
 
     @Override
     public <S extends WinningNumbers> List<S> saveAll(Iterable<S> entities) {

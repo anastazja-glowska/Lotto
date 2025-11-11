@@ -1,12 +1,22 @@
 package com.lotto.domain.numbergenerator;
 
+import com.lotto.domain.numbergenerator.dto.WinningNumbersDto;
 import com.lotto.domain.numberreceiver.NumberReceiverFacade;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@Log4j2
 class NumberGeneratorFacadeTest {
 
     private final RandomGenerable randomGenerable = new RandomGenerableTestImpl();
@@ -31,40 +41,76 @@ class NumberGeneratorFacadeTest {
     void should_generate_six_random_numbers(){
 
         // given
+        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
+        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
 
         //when
+        WinningNumbersDto winningNumbersDto = numberGeneratorFacade.generateWinningNumbers();
+        Set<Integer> winningNumbers = winningNumbersDto.getWinningNumbers();
+        log.info("Winning numbers are: {}", winningNumbers);
 
         //then
+        assertThat(winningNumbers).hasSize(6);
+
     }
 
     @Test
     void should_generate_six_random_numbers_in_correct_range(){
 
         // given
+        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
+        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
+        int lower_band =1;
+        int upper_band =99;
 
         //when
+        WinningNumbersDto winningNumbersDto = numberGeneratorFacade.generateWinningNumbers();
+
 
         //then
+        Set<Integer> winningNumbers = winningNumbersDto.getWinningNumbers();
+
+        log.info("Winning numbers are: {}", winningNumbers);
+        boolean areNotInCorrectRange = winningNumbers.stream()
+                .anyMatch(number -> number < lower_band || number > upper_band);
+
+        assertThat(areNotInCorrectRange).isFalse();
+
     }
 
     @Test
     void should_retrieve_winning_numbers_by_date(){
 
         // given
+        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
+        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
+
+        WinningNumbersDto generatedWinningNumbers = numberGeneratorFacade.generateWinningNumbers();
+        log.info("Generated winning Numbers " + generatedWinningNumbers);
+        Set<Integer> generatedNumbers = generatedWinningNumbers.getWinningNumbers();
 
         //when
+        WinningNumbersDto winningNumbersDto = numberGeneratorFacade.retrieveWinningNumbersByDate(nextDrawDate);
+
 
         //then
+        assertThat(winningNumbersDto.getDate()).isEqualTo(nextDrawDate);
+        assertThat(winningNumbersDto.getWinningNumbers()).isEqualTo(generatedNumbers);
     }
 
     @Test
     void should_throw_exception_when_winning_numbers_not_found(){
 
         // given
+        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
+        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
 
         //when
+        Throwable throwable = catchThrowable(() -> numberGeneratorFacade.retrieveWinningNumbersByDate(nextDrawDate));
 
         //then
+        assertThat(throwable).isInstanceOf(WinningNumbersNotFoundException.class);
+        assertThat(throwable.getMessage()).isEqualTo("Winning numbers not found!");
     }
 
 
@@ -72,10 +118,43 @@ class NumberGeneratorFacadeTest {
     void should_save_winning_numbers_to_winning_numbers_repository(){
 
         // given
+        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
+        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
 
         //when
+        WinningNumbersDto generatedWinningNumbers = numberGeneratorFacade.generateWinningNumbers();
 
         //then
+        log.info("Generated winning Numbers " + generatedWinningNumbers);
+        Optional<WinningNumbers> optionalWinningNumbers = winningNumberRepository
+                .findByDate(generatedWinningNumbers.getDate());
+
+        assertThat(optionalWinningNumbers.isPresent()).isTrue();
+        assertThat(optionalWinningNumbers.get().winningNumbers()).isEqualTo(generatedWinningNumbers.getWinningNumbers());
+    }
+
+
+    @Test
+    void should_return_true_if_winning_numbers_exists_by_date(){
+
+        // given
+        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
+        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
+        Set<Integer> winningNumbers = Set.of(1, 2, 3, 4, 7, 8);
+
+        WinningNumbers numbers = WinningNumbers.builder()
+                .id(1L)
+                .date(nextDrawDate)
+                .winningNumbers(winningNumbers)
+                .build();
+
+        winningNumberRepository.save(numbers);
+        //when
+        boolean areNumbersExisting = numberGeneratorFacade.areWinningNumbersExistingByDate();
+
+
+        //then
+        assertThat(areNumbersExisting).isTrue();
     }
 
 }
