@@ -5,6 +5,7 @@ liczby nie mogą się powtarzać
 klient dostaje informacje o dacie losowanie
 klient dostaje informacje o swoim unikalnym identyfikatorze losowanie
 klient może sprawdzić, czy wygrał (dostaje informacje ile trafił liczb)
+wygrane liczby powinny być pobrane ze zdalnego serwera HTTP
 losowania są co soboty o 12:00
 
 

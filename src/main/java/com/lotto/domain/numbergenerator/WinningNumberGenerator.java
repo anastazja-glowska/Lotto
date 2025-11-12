@@ -16,14 +16,17 @@ class WinningNumberGenerator {
     private final RandomGenerable randomGenerable;
     private final NumberValidator numberValidator;
     private final WinningNumberRepository winningNumberRepository;
+    private final RandomNumbersGenerable randomNumbersGenerable;
 
     WinningNumbersDto generateWinningNumbers(){
 
         LocalDateTime nextDrawnDate = numberReceiverFacade.retrieveNextDrawnDate();
-        RandomNumbersDto randomNumbersDto = randomGenerable.generateRandomNumbers(winningNumbersConfig.count(),
-                winningNumbersConfig.lowerBand(), winningNumbersConfig.upperBand());
+//        RandomNumbersDto randomNumbersDto = randomGenerable.generateRandomNumbers(winningNumbersConfig.count(),
+//                winningNumbersConfig.lowerBand(), winningNumbersConfig.upperBand());
+//
+//        Set<Integer> resultWinningNumbers = randomNumbersDto.numbers();
 
-        Set<Integer> resultWinningNumbers = randomNumbersDto.numbers();
+        Set<Integer> resultWinningNumbers = randomNumbersGenerable.generateSixRandomNumber();
         numberValidator.validateNumbers(resultWinningNumbers);
 
         WinningNumbers winningNumbers = saveWinningNumbers(nextDrawnDate, resultWinningNumbers);

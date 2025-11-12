@@ -14,11 +14,12 @@ class NumberGeneratorConfig {
     @Bean
     WinningNumberGenerator winningNumberGenerator(NumberReceiverFacade  numberReceiverFacade,
                                                  RandomGenerable randomGenerable, WinningNumberRepository winningNumberRepository,
-                                                  WinningNumberGeneratorConfiguration winningNumberGeneratorConfiguration){
+                                                  WinningNumberGeneratorConfiguration winningNumberGeneratorConfiguration,
+                                                  RandomNumbersGenerable randomNumbersGenerable){
         NumberValidator numberValidator = new NumberValidator();
 
         return new WinningNumberGenerator(numberReceiverFacade, winningNumberGeneratorConfiguration,
-                randomGenerable, numberValidator, winningNumberRepository);
+                randomGenerable, numberValidator, winningNumberRepository, randomNumbersGenerable );
 
     }
 

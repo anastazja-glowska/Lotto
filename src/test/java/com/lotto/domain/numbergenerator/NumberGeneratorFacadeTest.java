@@ -5,7 +5,6 @@ import com.lotto.domain.numberreceiver.NumberReceiverFacade;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -13,7 +12,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,10 +27,15 @@ class NumberGeneratorFacadeTest {
                     .lowerBand(1)
                     .upperBand(99)
                     .build();
+
+
+    private final RandomOneNumberRetriever randomNumberRetriever = new RandomOneNumberGenerator();
+    private final RandomNumbersGenerable randomNumbersGenerator = new RandomNumbersGenerator(randomNumberRetriever);
+
     private final NumberValidator numberValidator= new NumberValidator();
     private final WinningNumberGenerator winningNumberGenerator =
             new WinningNumberGenerator(numberReceiverFacade, generatorConfiguration, randomGenerable,
-                    numberValidator, winningNumberRepository);
+                    numberValidator, winningNumberRepository, randomNumbersGenerator);
 
     NumberGeneratorFacade numberGeneratorFacade = new NumberGeneratorConfig()
             .numberGeneratorFacade(winningNumberGenerator);
