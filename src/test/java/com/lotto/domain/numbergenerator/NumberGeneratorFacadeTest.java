@@ -3,6 +3,7 @@ package com.lotto.domain.numbergenerator;
 import com.lotto.domain.numbergenerator.dto.WinningNumbersDto;
 import com.lotto.domain.numberreceiver.NumberReceiverFacade;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -38,6 +39,7 @@ class NumberGeneratorFacadeTest {
 
 
     @Test
+    @DisplayName("Should generate six random numbers")
     void should_generate_six_random_numbers(){
 
         // given
@@ -56,6 +58,7 @@ class NumberGeneratorFacadeTest {
     }
 
     @Test
+    @DisplayName("Should generate six random numbers in correct range")
     void should_generate_six_random_numbers_in_correct_range(){
 
         // given
@@ -80,6 +83,7 @@ class NumberGeneratorFacadeTest {
     }
 
     @Test
+    @DisplayName("Should retrieve winning numbers by date")
     void should_retrieve_winning_numbers_by_date(){
 
         // given
@@ -100,6 +104,7 @@ class NumberGeneratorFacadeTest {
     }
 
     @Test
+    @DisplayName("Should throw exception when winning numbers not found")
     void should_throw_exception_when_winning_numbers_not_found(){
 
         // given
@@ -116,6 +121,7 @@ class NumberGeneratorFacadeTest {
 
 
     @Test
+    @DisplayName("Should save winning numbers to winning numbers repository")
     void should_save_winning_numbers_to_winning_numbers_repository(){
 
         // given
@@ -136,6 +142,7 @@ class NumberGeneratorFacadeTest {
 
 
     @Test
+    @DisplayName("Should return true if winning numbers exists by date")
     void should_return_true_if_winning_numbers_exists_by_date(){
 
         // given

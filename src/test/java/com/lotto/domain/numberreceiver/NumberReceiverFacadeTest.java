@@ -4,6 +4,7 @@ import com.lotto.AdjustableClock;
 import com.lotto.domain.numberreceiver.dto.InputNumbersResponseDto;
 import com.lotto.domain.numberreceiver.dto.TicketDto;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -26,17 +27,16 @@ class NumberReceiverFacadeTest {
     Clock clock = Clock.systemUTC();
 
 
-
     private final NumberReceiverFacade numberReceiverFacade =
             new NumberReceiverConfiguration().numberReceiverFacade(clock, ticketRepository, hashGenerator);
 
 
     @Test
+    @DisplayName("Should return correct response when user gave six numbers")
     void should_return_correct_response_when_user_gave_six_numbers() {
 
         //given 
         Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
-//        String ticketHash = hashGenerator.getHash();
         DrawDateGenerator drawDateGenerator = new DrawDateGenerator(clock);
         LocalDateTime nextDrawnDate = drawDateGenerator.getNextDrawnDate();
 
@@ -62,6 +62,7 @@ class NumberReceiverFacadeTest {
     }
 
     @Test
+    @DisplayName("Should return failed answer when user gave less than six numbers")
     void should_return_failed_answer_when_user_gave_less_than_six_numbers() {
 
 
@@ -82,6 +83,7 @@ class NumberReceiverFacadeTest {
     }
 
     @Test
+    @DisplayName("Should return failed when user gave more than six numbers")
     void should_return_failed_when_user_gave_more_than_six_numbers() {
 
         //given
@@ -100,6 +102,7 @@ class NumberReceiverFacadeTest {
     }
 
     @Test
+    @DisplayName("Should return failed when user gave at least one number out of range 1 to 99")
     void should_return_failed_when_user_gave_at_least_one_number_out_of_range_1_to_99() {
 
         //given
@@ -118,6 +121,7 @@ class NumberReceiverFacadeTest {
     }
 
     @Test
+    @DisplayName("Should return ticket by hash")
     void should_return_ticket_by_hash() {
 
         //given
@@ -135,7 +139,8 @@ class NumberReceiverFacadeTest {
 
 
     @Test
-    void it_should_return_next_Saturday_draw_date_when_date_is_Saturday_noon() {
+    @DisplayName("Should return next Saturday draw date when date is Saturday noon")
+    void should_return_next_Saturday_draw_date_when_date_is_Saturday_noon() {
 
         //given
         Clock fixedClock = Clock.fixed(LocalDateTime.of(2025, 10, 18, 12, 0, 0)
@@ -161,7 +166,8 @@ class NumberReceiverFacadeTest {
     }
 
     @Test
-    void it_should_return_correct_hash() {
+    @DisplayName("Should return correct hash")
+    void should_return_correct_hash() {
 
         //given
 
@@ -184,7 +190,8 @@ class NumberReceiverFacadeTest {
 
 
     @Test
-    void it_should_return_correct_draw_date() {
+    @DisplayName("Should return correct draw date")
+    void should_return_correct_draw_date() {
         //given
         Clock fixedClock = Clock.fixed(LocalDateTime.of(2025, 11, 8, 10, 0, 0)
                 .toInstant(ZoneOffset.UTC), ZoneId.of(("Europe/London")));
@@ -204,6 +211,7 @@ class NumberReceiverFacadeTest {
     }
 
     @Test
+    @DisplayName("Should return correct tickets by draw date")
     void should_return_correct_tickets_by_draw_date() {
 
         //given
@@ -251,6 +259,7 @@ class NumberReceiverFacadeTest {
     }
 
     @Test
+    @DisplayName("Should return saturday draw date when it is monday")
     void should_return_saturday_draw_date_when_it_is_monday() {
 
 
@@ -275,6 +284,7 @@ class NumberReceiverFacadeTest {
     }
 
     @Test
+    @DisplayName("Should return empty list when there is no tickets")
     void should_return_empty_list_when_there_is_no_tickets() {
 
         //given
@@ -306,6 +316,7 @@ class NumberReceiverFacadeTest {
 
 
     @Test
+    @DisplayName("Should throw exception when ticket not found")
     void should_throw_exception_when_ticket_not_found() {
 
 

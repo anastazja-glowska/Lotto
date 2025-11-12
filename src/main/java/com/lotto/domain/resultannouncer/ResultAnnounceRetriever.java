@@ -23,6 +23,10 @@ class ResultAnnounceRetriever {
             if(cachedResult.isPresent()){
                 ResultAnswer resultAnswer = cachedResult.get();
                 ResultDto resultDto = ResultAnnounceMapper.mapFromResultAnswer(resultAnswer);
+                if(!hasDrawDatePassed(resultDto.drawDate())){
+                    return new ResultMessageDto(MessageAnswer.WAIT_INFO.message,  resultDto);
+                }
+
                 return new ResultMessageDto(MessageAnswer.ALREADY_CHECKED_INFO.message, resultDto);
             }
 
@@ -38,9 +42,7 @@ class ResultAnnounceRetriever {
         ResultAnswer resultAnswer = toResultAnswer(resultDto, LocalDateTime.now(clock));
         resultRepository.save(resultAnswer);
 
-        if(resultRepository.existsById(hash) && !hasDrawDatePassed(resultDto.drawDate())){
-            return new ResultMessageDto(MessageAnswer.WAIT_INFO.message,  resultDto);
-        }
+
 
         if(resultChecker.findPlayerByTicketId(hash).isWinner()){
             return new ResultMessageDto(MessageAnswer.WIN_INFO.message, resultDto);

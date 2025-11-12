@@ -8,6 +8,7 @@ import com.lotto.domain.resultchecker.dto.AllPlayersDto;
 import com.lotto.domain.resultchecker.dto.PlayerDto;
 
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -38,6 +39,7 @@ class ResultCheckerFacadeTest {
     ResultCheckerFacade resultCheckerFacade = new ResultCheckerConfiguration().resultCheckerFacade(resultRetriever);
 
     @Test
+    @DisplayName("Should retrieve correct winners")
     void should_retrieve_correct_winners(){
 
         //given
@@ -110,6 +112,7 @@ class ResultCheckerFacadeTest {
 
 
     @Test
+    @DisplayName("Should retrieve only winners with min three winning numbers")
     void should_retrieve_only_winners_with_min_three_winning_numbers(){
 
         //given
@@ -182,6 +185,7 @@ class ResultCheckerFacadeTest {
     }
 
     @Test
+    @DisplayName("Should return any players when winning numbers are null")
     void should_return_any_players_when_winning_numbers_are_null(){
         // given
 
@@ -223,6 +227,7 @@ class ResultCheckerFacadeTest {
     }
 
     @Test
+    @DisplayName("Should find player by given ticket id")
     void should_find_player_by_given_ticket_id(){
         //given
 
@@ -270,6 +275,7 @@ class ResultCheckerFacadeTest {
     }
 
     @Test
+    @DisplayName("Should throw player not found exception when player not found")
     void should_throw_player_not_found_exception_when_player_not_found(){
 
         //given
