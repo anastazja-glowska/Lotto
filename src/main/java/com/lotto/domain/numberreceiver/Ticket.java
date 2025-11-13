@@ -8,5 +8,5 @@ import java.util.Set;
 
 @Builder
 @Document
-record Ticket(String ticketId, LocalDateTime drawDate, Set<Integer> numbersFromUser) {
+record Ticket(String hash, LocalDateTime drawDate, Set<Integer> numbersFromUser) {
 }

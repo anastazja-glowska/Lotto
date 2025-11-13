@@ -4,7 +4,7 @@ import com.lotto.domain.numberreceiver.dto.InputNumbersResponseDto;
 import com.lotto.domain.numberreceiver.dto.TicketDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
+
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -69,7 +69,7 @@ class NumberChecker {
         Ticket ticket = Ticket.builder()
                 .numbersFromUser(userNumbers)
                 .drawDate(nextDrawnDate)
-                .ticketId(ticketId)
+                .hash(ticketId)
                 .build();
 
         return ticketRepository.save(ticket);

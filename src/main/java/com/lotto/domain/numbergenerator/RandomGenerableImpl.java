@@ -1,18 +1,20 @@
 package com.lotto.domain.numbergenerator;
 
 import com.lotto.domain.numbergenerator.dto.RandomNumbersDto;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-class RandomGenerableTestImpl implements RandomGenerable{
+@Component
+public class RandomGenerableImpl implements RandomGenerable{
 
     private final Set<Integer> generatedNumbers;
 
-    RandomGenerableTestImpl(){
+    RandomGenerableImpl(){
         generatedNumbers = Set.of(1, 2, 3, 4, 5,6 );
     }
 
-    RandomGenerableTestImpl(Set<Integer> generatedNumbers){
+    RandomGenerableImpl(Set<Integer> generatedNumbers){
         this.generatedNumbers = generatedNumbers;
     }
 

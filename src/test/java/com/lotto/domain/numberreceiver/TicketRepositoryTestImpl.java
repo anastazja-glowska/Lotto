@@ -40,7 +40,7 @@ class TicketRepositoryTestImpl implements TicketRepository {
 
     @Override
     public Ticket save(Ticket ticket) {
-        Ticket savedTicket = ticketsDatabase.put(ticket.ticketId(), ticket);
+        Ticket savedTicket = ticketsDatabase.put(ticket.hash(), ticket);
         return ticket;
     }
 
