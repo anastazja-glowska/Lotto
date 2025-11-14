@@ -27,7 +27,8 @@ class WinningNumberGenerator {
 //
 //        Set<Integer> resultWinningNumbers = randomNumbersDto.numbers();
 
-        SixRandomNumbersDto resultWinningNumbers = randomNumbersGenerable.generateSixRandomNumber();
+        SixRandomNumbersDto resultWinningNumbers = randomNumbersGenerable.generateSixRandomNumber(winningNumbersConfig.count(),
+                winningNumbersConfig.lowerBand(),  winningNumbersConfig.upperBand());
         numberValidator.validateNumbers(resultWinningNumbers.numbers());
 
         WinningNumbers winningNumbers = saveWinningNumbers(nextDrawnDate, resultWinningNumbers.numbers());

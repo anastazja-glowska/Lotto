@@ -105,12 +105,12 @@ class WinningNumberRepositoryTestImpl implements WinningNumberRepository{
     }
 
     @Override
-    public Optional<WinningNumbers> findById(Long aLong) {
+    public Optional<WinningNumbers> findById(String aLong) {
         return Optional.empty();
     }
 
     @Override
-    public boolean existsById(Long aLong) {
+    public boolean existsById(String  aLong) {
         return false;
     }
 
@@ -120,7 +120,7 @@ class WinningNumberRepositoryTestImpl implements WinningNumberRepository{
     }
 
     @Override
-    public List<WinningNumbers> findAllById(Iterable<Long> longs) {
+    public List<WinningNumbers> findAllById(Iterable<String> longs) {
         return List.of();
     }
 
@@ -130,7 +130,7 @@ class WinningNumberRepositoryTestImpl implements WinningNumberRepository{
     }
 
     @Override
-    public void deleteById(Long aLong) {
+    public void deleteById(String aLong) {
 
     }
 
@@ -140,7 +140,7 @@ class WinningNumberRepositoryTestImpl implements WinningNumberRepository{
     }
 
     @Override
-    public void deleteAllById(Iterable<? extends Long> longs) {
+    public void deleteAllById(Iterable<? extends String> longs) {
 
     }
 

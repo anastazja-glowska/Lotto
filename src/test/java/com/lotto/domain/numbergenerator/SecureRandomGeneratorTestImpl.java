@@ -19,7 +19,7 @@ class SecureRandomGeneratorTestImpl implements RandomNumbersGenerable{
 
 
     @Override
-    public SixRandomNumbersDto generateSixRandomNumber() {
+    public SixRandomNumbersDto generateSixRandomNumber(int count, int lowerBand, int upperBand) {
 
         Set<Integer> generatedWinningNumbers = new HashSet<>();
         while(isNumbersAmountLowerThanSix(generatedWinningNumbers)) {

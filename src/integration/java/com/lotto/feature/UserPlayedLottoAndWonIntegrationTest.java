@@ -2,8 +2,10 @@ package com.lotto.feature;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.lotto.BaseIntegrationTest;
+import com.lotto.domain.numbergenerator.NumberGeneratorFacade;
 import com.lotto.domain.numbergenerator.RandomNumbersGenerable;
 import com.lotto.domain.numbergenerator.dto.SixRandomNumbersDto;
+import com.lotto.domain.numbergenerator.dto.WinningNumbersDto;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,9 +14,12 @@ import org.springframework.http.HttpStatus;
 
 @Log4j2
 class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
+//
+//    @Autowired
+//    RandomNumbersGenerable randomNumbersGenerable;
 
     @Autowired
-    RandomNumbersGenerable randomNumbersGenerable;
+    NumberGeneratorFacade numberGeneratorFacade;
 
     @Test
     @DisplayName("Should user win and system should generate winners")
@@ -38,8 +43,11 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 
         //when
 
-        SixRandomNumbersDto sixRandomNumbersDto = randomNumbersGenerable.generateSixRandomNumber();
-        log.info("sixRandomNumbersDto = {}", sixRandomNumbersDto.numbers());
+        WinningNumbersDto winningNumbers = numberGeneratorFacade.generateWinningNumbers();
+        log.info("WinningNumbers: " + winningNumbers);
+
+//        SixRandomNumbersDto sixRandomNumbersDto = randomNumbersGenerable.generateSixRandomNumber();
+//        log.info("sixRandomNumbersDto = {}", sixRandomNumbersDto.numbers());
 
 
 

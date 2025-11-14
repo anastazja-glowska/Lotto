@@ -8,5 +8,5 @@ import java.util.Set;
 @Component
 public interface RandomNumbersGenerable {
 
-    SixRandomNumbersDto generateSixRandomNumber();
+    SixRandomNumbersDto generateSixRandomNumber(int count, int lowerBand, int upperBand);
 }

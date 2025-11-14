@@ -154,7 +154,7 @@ class NumberGeneratorFacadeTest {
         Set<Integer> winningNumbers = Set.of(1, 2, 3, 4, 7, 8);
 
         WinningNumbers numbers = WinningNumbers.builder()
-                .id(1L)
+                .id("001")
                 .date(nextDrawDate)
                 .winningNumbers(winningNumbers)
                 .build();
