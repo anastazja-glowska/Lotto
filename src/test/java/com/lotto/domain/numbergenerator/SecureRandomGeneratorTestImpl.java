@@ -2,6 +2,7 @@ package com.lotto.domain.numbergenerator;
 
 
 import com.lotto.domain.numbergenerator.dto.SixRandomNumbersDto;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
@@ -10,6 +11,7 @@ import java.util.Random;
 import java.util.Set;
 
 @Component
+@Primary
 class SecureRandomGeneratorTestImpl implements RandomNumbersGenerable{
 
     private static final Integer LOWER_BAND = 1;

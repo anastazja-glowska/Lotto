@@ -1,17 +1,48 @@
 package com.lotto.feature;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.lotto.BaseIntegrationTest;
+import com.lotto.domain.numbergenerator.RandomNumbersGenerable;
+import com.lotto.domain.numbergenerator.dto.SixRandomNumbersDto;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
+@Log4j2
 class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
+
+    @Autowired
+    RandomNumbersGenerable randomNumbersGenerable;
 
     @Test
     @DisplayName("Should user win and system should generate winners")
     void should_user_win_and_system_should_generate_winners(){
 
+        //        step 1: external service returns 6 random numbers (1,2,3,4,5,6)
 
-//        step 1: external service returns 6 random numbers (1,2,3,4,5,6)
+        //given
+
+
+
+        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=25")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                                .withBody("""
+                                        1, 2, 3, 4, 5, 6, 82, 82, 83, 83, 86, 57, 10, 81, 53, 93, 50, 54, 31, 88, 15, 43, 79, 32, 43]
+                                                                                 
+                                        """.trim())));
+
+
+        //when
+
+        SixRandomNumbersDto sixRandomNumbersDto = randomNumbersGenerable.generateSixRandomNumber();
+        log.info("sixRandomNumbersDto = {}", sixRandomNumbersDto.numbers());
+
+
+
 //        step 2: user made POST /inputNumbers with 6 numbers (1, 2, 3, 4, 5, 6) at 16-11-2022 10:00 and system returned OK(200) with message: “success” and Ticket (DrawDate:19.11.2022 12:00 (Saturday), TicketId: sampleTicketId)
 //        step 1.5 (what if user makes GET /results/sampleTicketId see step 6)
 //        step 3: system generated winning numbers for draw date: 19.11.2022 12:00
