@@ -20,12 +20,13 @@ public class RandomGeneratorClientConfig {
 
     @Bean
     public RestTemplate restTemplate(
-            RestTemplateResponseErrorHandler restTemplateResponseErrorHandler){
+            RestTemplateResponseErrorHandler restTemplateResponseErrorHandler,
+            RandomGeneratorRestTemplateConfig randomGeneratorRestTemplateConfig) {
 
         return new RestTemplateBuilder()
                 .errorHandler(restTemplateResponseErrorHandler)
-                .setConnectTimeout(Duration.ofMillis(5000))
-                .setReadTimeout(Duration.ofMillis(5000))
+                .setConnectTimeout(Duration.ofMillis(randomGeneratorRestTemplateConfig.connectTimeout()))
+                .setReadTimeout(Duration.ofMillis(randomGeneratorRestTemplateConfig.readTimeout()))
                 .build();
 
     }

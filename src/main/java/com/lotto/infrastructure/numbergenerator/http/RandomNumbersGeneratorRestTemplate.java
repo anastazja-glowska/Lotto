@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Log4j2
 class RandomNumbersGeneratorRestTemplate implements RandomNumbersGenerable {
 
-    public static final String RANDOM_NUMBER_SERVICE_PATH = "/api/v1.0/random";
+    private static final String RANDOM_NUMBER_SERVICE_PATH = "/api/v1.0/random";
     private static final int MAXIMAL_WINNING_NUMBERS = 6;
 
     private final RestTemplate restTemplate;
