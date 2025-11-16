@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 @Log4j2
 class NumberGeneratorFacadeTest {
 
-    private final RandomGenerable randomGenerable = new RandomGenerableTestImpl();
+    private final RandomGenerable randomGenerable = new RandomGenerableImpl();
     private final WinningNumberRepository winningNumberRepository = new WinningNumberRepositoryTestImpl();
     NumberReceiverFacade numberReceiverFacade = mock(NumberReceiverFacade.class);
     private final WinningNumberGeneratorConfiguration generatorConfiguration =
@@ -29,8 +29,8 @@ class NumberGeneratorFacadeTest {
                     .build();
 
 
-    private final RandomOneNumberRetriever randomNumberRetriever = new RandomOneNumberGenerator();
-    private final RandomNumbersGenerable randomNumbersGenerator = new RandomNumbersGenerator(randomNumberRetriever);
+//    private final RandomOneNumberRetriever randomNumberRetriever = new RandomOneNumberGenerator();
+    private final RandomNumbersGenerable randomNumbersGenerator = new SecureRandomGeneratorTestImpl();
 
     private final NumberValidator numberValidator= new NumberValidator();
     private final WinningNumberGenerator winningNumberGenerator =
@@ -154,7 +154,7 @@ class NumberGeneratorFacadeTest {
         Set<Integer> winningNumbers = Set.of(1, 2, 3, 4, 7, 8);
 
         WinningNumbers numbers = WinningNumbers.builder()
-                .id(1L)
+                .id("001")
                 .date(nextDrawDate)
                 .winningNumbers(winningNumbers)
                 .build();

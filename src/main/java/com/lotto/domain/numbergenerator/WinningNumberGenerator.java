@@ -1,6 +1,7 @@
 package com.lotto.domain.numbergenerator;
 
 import com.lotto.domain.numbergenerator.dto.RandomNumbersDto;
+import com.lotto.domain.numbergenerator.dto.SixRandomNumbersDto;
 import com.lotto.domain.numbergenerator.dto.WinningNumbersDto;
 import com.lotto.domain.numberreceiver.NumberReceiverFacade;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +27,11 @@ class WinningNumberGenerator {
 //
 //        Set<Integer> resultWinningNumbers = randomNumbersDto.numbers();
 
-        Set<Integer> resultWinningNumbers = randomNumbersGenerable.generateSixRandomNumber();
-        numberValidator.validateNumbers(resultWinningNumbers);
+        SixRandomNumbersDto resultWinningNumbers = randomNumbersGenerable.generateSixRandomNumber(winningNumbersConfig.count(),
+                winningNumbersConfig.lowerBand(),  winningNumbersConfig.upperBand());
+        numberValidator.validateNumbers(resultWinningNumbers.numbers());
 
-        WinningNumbers winningNumbers = saveWinningNumbers(nextDrawnDate, resultWinningNumbers);
+        WinningNumbers winningNumbers = saveWinningNumbers(nextDrawnDate, resultWinningNumbers.numbers());
         return mapFromWinningNumber(winningNumbers);
 
 
