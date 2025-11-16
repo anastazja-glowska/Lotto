@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.lotto.BaseIntegrationTest;
 import com.lotto.domain.numbergenerator.NumberGeneratorFacade;
 import com.lotto.domain.numbergenerator.RandomNumbersGenerable;
+import com.lotto.domain.numbergenerator.WinningNumbersNotFoundException;
 import com.lotto.domain.numbergenerator.dto.SixRandomNumbersDto;
 import com.lotto.domain.numbergenerator.dto.WinningNumbersDto;
 import lombok.extern.log4j.Log4j2;
@@ -11,6 +12,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import static org.awaitility.Awaitility.await;
 
 @Log4j2
 class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
@@ -50,10 +56,30 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 //        log.info("sixRandomNumbersDto = {}", sixRandomNumbersDto.numbers());
 
 
+        //        step 2: system generated winning numbers for draw date: 8.11.2025 12:00
+
+        //given
+        LocalDateTime drawDate = LocalDateTime.of(2025, 11, 22, 12, 0, 0);
+
+        //when
+        await()
+                .atMost(Duration.ofSeconds(10))
+                .pollInterval(Duration.ofSeconds(1))
+                .until(() -> {
+                    try {
+                        return !numberGeneratorFacade.retrieveWinningNumbersByDate(drawDate).getWinningNumbers().isEmpty();
+
+                    } catch (WinningNumbersNotFoundException e) {
+                        return false;
+                    }
+                });
+
+        //then
+
+
 
 //        step 2: user made POST /inputNumbers with 6 numbers (1, 2, 3, 4, 5, 6) at 16-11-2022 10:00 and system returned OK(200) with message: “success” and Ticket (DrawDate:19.11.2022 12:00 (Saturday), TicketId: sampleTicketId)
 //        step 1.5 (what if user makes GET /results/sampleTicketId see step 6)
-//        step 3: system generated winning numbers for draw date: 19.11.2022 12:00
 //        step 4: 3 days, 2hrs and 1 minute passed, and it is 1 minute after the draw date (19.11.2022 12:01)
 //        step 5: system generated result for TicketId: sampleTicketId with draw date 19.11.2022 12:00, and saved it with 6 hits
 //        step 6: 3 hours passed, and it is 1 minute after announcement time (19.11.2022 15:01)
