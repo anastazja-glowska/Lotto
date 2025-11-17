@@ -105,6 +105,17 @@
             <scope>test</scope>
         </dependency>
 
+        <!--        SWAGGER-->
+        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter -->
+
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
