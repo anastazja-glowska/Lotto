@@ -15,7 +15,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@SpringBootTest(classes = LottoApplication.class)
+@SpringBootTest(classes = {LottoApplication.class, IntegrationConfiguration.class})
 @ActiveProfiles("integration")
 @AutoConfigureMockMvc
 @Testcontainers
@@ -29,6 +29,8 @@ public class BaseIntegrationTest {
 
     @Autowired
     public ObjectMapper objectMapper;
+
+    public AdjustableClock clock;
 
     @Container
     public static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0");

@@ -16,13 +16,13 @@ import org.springframework.http.HttpStatus;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.awaitility.Awaitility.await;
 
 @Log4j2
 class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
-//
-//    @Autowired
-//    RandomNumbersGenerable randomNumbersGenerable;
+
 
     @Autowired
     NumberGeneratorFacade numberGeneratorFacade;
@@ -34,7 +34,6 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
         //        step 1: external service returns 6 random numbers (1,2,3,4,5,6)
 
         //given
-
 
 
         wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=25")
@@ -52,13 +51,11 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
         WinningNumbersDto winningNumbers = numberGeneratorFacade.generateWinningNumbers();
         log.info("WinningNumbers: " + winningNumbers);
 
-//        SixRandomNumbersDto sixRandomNumbersDto = randomNumbersGenerable.generateSixRandomNumber();
-//        log.info("sixRandomNumbersDto = {}", sixRandomNumbersDto.numbers());
 
-
-        //        step 2: system generated winning numbers for draw date: 8.11.2025 12:00
+        //        step 2: system generated winning numbers for draw date: 15.11.2025 12:00
 
         //given
+
         LocalDateTime drawDate = LocalDateTime.of(2025, 11, 22, 12, 0, 0);
 
         //when
