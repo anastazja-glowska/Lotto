@@ -12,6 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,6 +21,8 @@ import java.time.LocalDateTime;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.awaitility.Awaitility.await;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Log4j2
 class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
@@ -29,7 +33,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 
     @Test
     @DisplayName("Should user win and system should generate winners")
-    void should_user_win_and_system_should_generate_winners(){
+    void should_user_win_and_system_should_generate_winners() throws Exception {
 
         //        step 1: external service returns 6 random numbers (1,2,3,4,5,6)
 
@@ -46,7 +50,6 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
                                         """.trim())));
 
 
-        //when
 
         WinningNumbersDto winningNumbers = numberGeneratorFacade.generateWinningNumbers();
         log.info("WinningNumbers: " + winningNumbers);
@@ -58,7 +61,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 
         LocalDateTime drawDate = LocalDateTime.of(2025, 11, 22, 12, 0, 0);
 
-        //when
+        //when & then
         await()
                 .atMost(Duration.ofSeconds(10))
                 .pollInterval(Duration.ofSeconds(1))
@@ -71,11 +74,26 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
                     }
                 });
 
+
+
+
+
+//        step 3: user made POST /inputNumbers with 6 numbers (1, 2, 3, 4, 5, 6) at 16-11-2022 10:00 and system returned OK(200) with message: “success” and Ticket (DrawDate:19.11.2022 12:00 (Saturday), TicketId: sampleTicketId)
+
+        //given & when
+        ResultActions perform = mockMvc.perform(post("/inputNumbers")
+                .content(
+                        """
+                                {
+                                "inputNumbers" : [1, 2, 3,4 ,5 ,6 ]
+                                }
+                                """
+                )
+                .contentType(MediaType.APPLICATION_JSON));
         //then
+        perform.andExpect(status().isOk());
 
 
-
-//        step 2: user made POST /inputNumbers with 6 numbers (1, 2, 3, 4, 5, 6) at 16-11-2022 10:00 and system returned OK(200) with message: “success” and Ticket (DrawDate:19.11.2022 12:00 (Saturday), TicketId: sampleTicketId)
 //        step 1.5 (what if user makes GET /results/sampleTicketId see step 6)
 //        step 4: 3 days, 2hrs and 1 minute passed, and it is 1 minute after the draw date (19.11.2022 12:01)
 //        step 5: system generated result for TicketId: sampleTicketId with draw date 19.11.2022 12:00, and saved it with 6 hits
