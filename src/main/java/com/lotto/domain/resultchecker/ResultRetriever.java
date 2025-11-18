@@ -44,7 +44,7 @@ class ResultRetriever {
 
     PlayerDto findPlayerByTicketId(String ticketId){
         Player player = playersRepository.findById(ticketId)
-                .orElseThrow(() -> new PlayerNotFoundException("Player not found!"));
+                .orElseThrow(() -> new PlayerNotFoundException("Player not found for id " + ticketId));
 
         return ResultCheckerMapper.mapFromPlayer(player);
     }

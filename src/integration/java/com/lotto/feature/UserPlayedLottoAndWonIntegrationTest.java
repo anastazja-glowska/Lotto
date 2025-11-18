@@ -27,7 +27,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Log4j2
@@ -76,6 +78,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 
         //given
 
+        winningNumberRepository.deleteAll();
         LocalDateTime drawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
 
         //when & then
@@ -98,6 +101,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 //        step 3: user made POST /inputNumbers with 6 numbers (1, 2, 3, 4, 5, 6) at 16-11-2022 10:00 and system returned OK(200) with message: “success” and Ticket (DrawDate:19.11.2022 12:00 (Saturday), TicketId: sampleTicketId)
 
         //given & when
+        winningNumberRepository.deleteAll();
         ResultActions perform = mockMvc.perform(post("/inputNumbers")
                 .content(
                         """
@@ -111,12 +115,13 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
         MvcResult mvcResult = perform.andExpect(status().isOk()).andReturn();
         String result = mvcResult.getResponse().getContentAsString();
         InputNumbersResponseDto inputNumbersResponseDto = objectMapper.readValue(result, InputNumbersResponseDto.class);
+        String ticketId = inputNumbersResponseDto.ticketDto().ticketId();
 
 
         assertAll(
                 () ->    assertThat(inputNumbersResponseDto.ticketDto().drawDate()).isEqualTo(drawDate),
                 () ->  assertThat(inputNumbersResponseDto.message()).isEqualTo("SUCCESS"),
-                () -> assertThat(inputNumbersResponseDto.ticketDto().ticketId()).isNotNull()
+                () -> assertThat(ticketId).isNotNull()
         );
 
 
@@ -124,7 +129,21 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 
 
 
-//        step 1.5 (what if user makes GET /results/sampleTicketId see step 6)
+//        step 4 user make GET request /results/{notExistingId} and system returned 404
+
+        //given & when
+        ResultActions performResultsWithNotExistingId = mockMvc.perform(get("/results/" + "notExistingId"));
+        //then
+        performResultsWithNotExistingId.andExpect(status().isNotFound())
+                .andExpect(content().json(
+                        """
+                               {
+                               "message" : "Player not found for id notExistingId",
+                               "status" : "NOT_FOUND"
+                               }
+                               """.trim()
+                ));
+
 //        step 4: 3 days, 2hrs and 1 minute passed, and it is 1 minute after the draw date (19.11.2022 12:01)
 //        step 5: system generated result for TicketId: sampleTicketId with draw date 19.11.2022 12:00, and saved it with 6 hits
 //        step 6: 3 hours passed, and it is 1 minute after announcement time (19.11.2022 15:01)

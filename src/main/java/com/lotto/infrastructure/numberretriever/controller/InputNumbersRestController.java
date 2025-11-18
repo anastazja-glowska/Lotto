@@ -3,7 +3,9 @@ package com.lotto.infrastructure.numberretriever.controller;
 import com.lotto.domain.numberreceiver.NumberReceiverFacade;
 import com.lotto.domain.numberreceiver.dto.InputNumbersResponseDto;
 import com.lotto.domain.numberreceiver.dto.TicketDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +24,7 @@ public class InputNumbersRestController {
     private final NumberReceiverFacade numberReceiverFacade;
 
     @PostMapping("/inputNumbers")
-    public ResponseEntity<InputNumbersResponseDto> inputNumbers(@RequestBody InputNumbersRequestDto requestDto) {
+    public ResponseEntity<InputNumbersResponseDto> inputNumbers(@RequestBody @Valid InputNumbersRequestDto requestDto) {
         log.info("Received InputNumbersRequestDto {}", requestDto);
 
         Set<Integer> numbersFromUser = requestDto.inputNumbers().stream().collect(Collectors.toSet());
