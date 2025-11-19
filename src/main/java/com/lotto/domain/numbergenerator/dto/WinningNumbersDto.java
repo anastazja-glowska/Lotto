@@ -1,5 +1,6 @@
 package com.lotto.domain.numbergenerator.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,9 +9,10 @@ import java.util.Set;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class WinningNumbersDto {
 
 
-    private LocalDateTime date;
-    private Set<Integer> winningNumbers;
+    public LocalDateTime date;
+    public Set<Integer> winningNumbers;
 }

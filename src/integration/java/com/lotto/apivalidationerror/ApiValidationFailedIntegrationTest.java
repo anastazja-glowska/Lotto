@@ -4,11 +4,13 @@ import com.lotto.BaseIntegrationTest;
 import com.lotto.infrastructure.apivalidation.ApiValidationErrorDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,7 +34,12 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
         ApiValidationErrorDto apiValidationErrorDto = objectMapper.readValue(json, ApiValidationErrorDto.class);
 
         //then
-        assertThat(apiValidationErrorDto.messages()).containsExactlyInAnyOrder("inputNumbers must not be empty");
+        assertAll(
+                () -> assertThat(apiValidationErrorDto.messages()).containsExactlyInAnyOrder("inputNumbers must not be empty"),
+                () -> assertThat(apiValidationErrorDto).isNotNull(),
+                () -> assertThat(apiValidationErrorDto.status()).isEqualTo(HttpStatus.BAD_REQUEST)
+        );
+
     }
 
     @Test
@@ -50,7 +57,13 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
         ApiValidationErrorDto mapped = objectMapper.readValue(json, ApiValidationErrorDto.class);
 
         //then
-        assertThat(mapped.messages()).containsExactlyInAnyOrder("inputNumbers must not be empty",
-                "inputNumbers must not be null");
+        assertAll(
+                ()-> assertThat(mapped.messages()).containsExactlyInAnyOrder("inputNumbers must not be empty",
+                        "inputNumbers must not be null"),
+                () -> assertThat(mapped.status()).isEqualTo(HttpStatus.BAD_REQUEST),
+                () -> assertThat(mapped).isNotNull()
+        );
+
+
     }
 }

@@ -9,7 +9,7 @@ class NumberValidator {
 
     Set<Integer> validateNumbers(Set<Integer> numbers) {
         if(areNumbersNotInRange(numbers)){
-            throw new NumberOutOfRangeException("Numbers are not in range!");
+            throw new NumberOutOfRangeException(String.format("Numbers %s are out of range", numbers));
         }
         return numbers;
     }

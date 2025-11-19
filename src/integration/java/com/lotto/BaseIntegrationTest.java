@@ -30,6 +30,7 @@ public class BaseIntegrationTest {
     @Autowired
     public ObjectMapper objectMapper;
 
+    @Autowired
     public AdjustableClock clock;
 
     @Container
