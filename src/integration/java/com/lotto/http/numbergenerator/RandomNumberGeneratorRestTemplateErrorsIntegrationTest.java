@@ -80,6 +80,28 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
         );
     }
 
+    @Test
+    @DisplayName("Should return null numbers when external server malformed response chunk")
+    void should_return_null_numbers_when_external_server_malformed_response_chunk(){
+        //given
+
+        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                        .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+
+        //then
+
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+
+        // then
+        assertAll(
+                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
+        );
+    }
+
 
 
 
