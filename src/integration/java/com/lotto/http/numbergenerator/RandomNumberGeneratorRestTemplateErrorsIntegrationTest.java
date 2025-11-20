@@ -58,6 +58,28 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
         );
     }
 
+    @Test
+    @DisplayName("Should return null numbers when external server fault empty response")
+    void should_return_null_numbers_when_external_server_fault_empty_response(){
+
+        // given
+
+        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value()
+                                ).withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                        .withFault(Fault.EMPTY_RESPONSE)));
+
+        //when
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+
+        //then
+        assertAll(
+                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
+        );
+    }
+
 
 
 
