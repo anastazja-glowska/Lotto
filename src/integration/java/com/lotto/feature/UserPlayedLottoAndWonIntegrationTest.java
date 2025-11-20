@@ -75,13 +75,6 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
     void setup() {
         winningNumberRepository.deleteAll();
 
-        WinningNumbers prepared = WinningNumbers.builder()
-                .date(drawDate)
-                .winningNumbers(Set.of(1,2,3,4,5,6))
-                .build();
-
-
-        winningNumberRepository.save(prepared);
     }
 
 
@@ -107,11 +100,8 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 
         //        step 2: system generated winning numbers for draw date: 15.11.2025 12:00
 
-        //given
 
-       
-
-        //when & then
+        //given && when && then
         await()
                 .atMost(Duration.ofSeconds(25))
                 .pollInterval(Duration.ofSeconds(1))
@@ -141,13 +131,12 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON));
         //then
 
-        log.info("Winning numbers repository size " +  winningNumberRepository.findAll().size());
+
         MvcResult mvcResult = perform.andExpect(status().isOk()).andReturn();
         String result = mvcResult.getResponse().getContentAsString();
         InputNumbersResponseDto inputNumbersResponseDto = objectMapper.readValue(result, InputNumbersResponseDto.class);
         String ticketId = inputNumbersResponseDto.ticketDto().ticketId();
 
-        log.info("Ticket id " +  ticketId);
 
 
         assertAll(
@@ -158,10 +147,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 
 
 
-
-
-
-//        step 4 user make GET request /results/{notExistingId} and system returned 404
+        //        step 4 user make GET request /results/{notExistingId} and system returned 404
 
         //given & when
         ResultActions performResultsWithNotExistingId = mockMvc.perform(get("/results/" + "notExistingId"));
@@ -214,8 +200,11 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
 
 
 //        step 7: 6 minutes passed and it is 1 minute after the draw (8.11.2025 12:01)
+
         //given && when && then
         clock.plusMinutes(6);
+
+
 //        step 8: user made GET /results/sampleTicketId and system returned 200 (OK)
 
         //given && when
@@ -223,13 +212,17 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
         String winningInfoJson = returnedWinningInfo.getResponse().getContentAsString();
         ResultMessageDto resultMessageDto = objectMapper.readValue(winningInfoJson, ResultMessageDto.class);
 
-        log.info(resultMessageDto);
 
         //then
 
         assertAll(
-                () -> assertThat(resultMessageDto).isNotNull()
-
+                () -> assertThat(resultMessageDto).isNotNull(),
+                () -> assertThat(resultMessageDto.resultDto().drawDate()).isEqualTo(drawDate),
+                () -> assertThat(resultMessageDto.resultDto().isWinner()).isTrue(),
+                () -> assertThat(resultMessageDto.resultDto().hash()).isEqualTo(ticketId),
+                () -> assertThat(resultMessageDto.resultDto().winningNumbers()).hasSize(6),
+                () -> assertThat(resultMessageDto.resultDto().numbers()).isEqualTo(Set.of(1, 2, 3, 4, 5, 6)),
+                () -> assertThat(resultMessageDto.message()).isEqualTo("You are a winner! Congratulations!")
                         );
 
 
