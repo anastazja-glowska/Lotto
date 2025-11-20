@@ -2,6 +2,7 @@ package com.lotto.feature;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.lotto.BaseIntegrationTest;
+import com.lotto.WireMockLottoResponse;
 import com.lotto.domain.numbergenerator.NumberGeneratorFacade;
 import com.lotto.domain.numbergenerator.NumberOutOfRangeException;
 import com.lotto.domain.numbergenerator.RandomNumbersGenerable;
@@ -52,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Log4j2
-class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
+class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implements WireMockLottoResponse {
 
 
     @Autowired
@@ -91,12 +92,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", "application/json")
-                                .withBody("""
-                                        [1, 2, 3, 4, 5, 6]
-                                                                                 
-                                        """.trim())));
-
-
+                                .withBody(retrieveNumbers())));
 
         //        step 2: system generated winning numbers for draw date: 15.11.2025 12:00
 
@@ -122,11 +118,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
         //given & when
         ResultActions perform = mockMvc.perform(post("/inputNumbers")
                 .content(
-                        """
-                                {
-                                "inputNumbers" : [1, 2, 3, 4 ,5 ,6 ]
-                                }
-                                """
+                        retrieveInputNumbers()
                 )
                 .contentType(MediaType.APPLICATION_JSON));
         //then
@@ -154,12 +146,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest {
         //then
         performResultsWithNotExistingId.andExpect(status().isNotFound())
                 .andExpect(content().json(
-                        """
-                               {
-                               "message" : "Player not found for id notExistingId",
-                               "status" : "NOT_FOUND"
-                               }
-                               """.trim()
+                        retrieveNotFoundResponse()
                 ));
 
 //        step 5: 3 days and 55 minutes passed, and it is 5 minute before draw (8.11.2025 11:55)
