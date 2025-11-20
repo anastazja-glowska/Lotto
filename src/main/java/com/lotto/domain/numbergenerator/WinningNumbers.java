@@ -10,5 +10,9 @@ import java.util.Set;
 
 @Document
 @Builder
-public record WinningNumbers(@Id String id, Set<Integer> winningNumbers, @Indexed(unique = true)LocalDateTime date) {
+public record WinningNumbers(String id, Set<Integer> winningNumbers, LocalDateTime date) {
 }
+
+
+//@Id
+//@Indexed(unique = true)

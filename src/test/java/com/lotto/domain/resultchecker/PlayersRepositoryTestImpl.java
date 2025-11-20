@@ -20,8 +20,8 @@ class PlayersRepositoryTestImpl implements PlayersRepository {
     Map<String, Player> playerMap = new ConcurrentHashMap<>();
 
     @Override
-    public Optional<Player> findById(String ticketId) {
-        return Optional.ofNullable(playerMap.get(ticketId));
+    public Optional<Player> findById(String id) {
+        return Optional.ofNullable(playerMap.get(id));
     }
 
 

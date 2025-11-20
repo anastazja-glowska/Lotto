@@ -72,7 +72,8 @@ class NumberChecker {
                 .hash(ticketId)
                 .build();
 
-        return ticketRepository.save(ticket);
+        Ticket saved = ticketRepository.save(ticket);
+        return saved;
 
     }
 }
