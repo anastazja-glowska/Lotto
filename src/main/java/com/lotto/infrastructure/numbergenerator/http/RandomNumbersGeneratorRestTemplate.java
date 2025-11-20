@@ -55,7 +55,7 @@ class RandomNumbersGeneratorRestTemplate implements RandomNumbersGenerable {
 
         }catch (ResourceAccessException e){
             log.error("Error while getting generated winning numbers!");
-            return new SixRandomNumbersDto(Collections.emptySet());
+            throw new ResourceAccessException("500 INTERNAL SERVER ERROR");
         }
 
     }

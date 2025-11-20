@@ -10,11 +10,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMockLottoResponse {
 
@@ -45,11 +48,14 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
 
         // when
-        SixRandomNumbersDto sixRandomNumbers = randomNumbersGenerable
-                .generateSixRandomNumber(6, 1, 99);
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable
+                .generateSixRandomNumber(6, 1, 99));
 
         //then
-        assertThat(sixRandomNumbers.numbers()).isEmpty();
+        assertAll(
+                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
+        );
     }
 
 
