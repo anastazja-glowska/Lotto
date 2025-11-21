@@ -126,6 +126,32 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
     }
 
+    @Test
+    @DisplayName("Should throw exception no content when status is 204 no content")
+    void should_throw_exception_no_content_when_status_is_204_no_content(){
+
+        //given
+
+        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.NO_CONTENT.value())
+                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                        .withBody(retrieveNumbers())));
+
+        //when
+
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+
+        // then
+        assertAll(
+                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable.getMessage()).isEqualTo("204 NO CONTENT")
+        );
+
+
+    }
+
+
 
 
 }
