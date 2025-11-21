@@ -178,5 +178,27 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
     }
 
+    @Test
+    @DisplayName("Should throw not found 404 exception when external server return not found status")
+    void should_throw_not_found_404_exception_when_external_server_return_not_found_status(){
+
+        //given
+        wireMockServer.stubFor(WireMock.get("/.api/v1.0/random?min=1&max=99&count=6")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.NOT_FOUND.value())
+                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)));
+
+        //when
+
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+
+        // then
+        assertAll(
+                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable.getMessage()).isEqualTo("404 NOT FOUND")
+        );
+
+    }
+
 
 }
