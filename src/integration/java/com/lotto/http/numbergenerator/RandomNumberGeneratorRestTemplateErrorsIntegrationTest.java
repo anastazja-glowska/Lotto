@@ -195,8 +195,32 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
         // then
         assertAll(
                 () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
-                () -> assertThat(throwable.getMessage()).isEqualTo("404 NOT FOUND")
+                () -> assertThat(throwable.getMessage()).isEqualTo("404 NOT_FOUND")
         );
+
+    }
+
+    @Test
+    @DisplayName("Should throw 401 exception when external server return unauthorized status")
+    void should_throw_401_exception_when_external_server_return_unauthorized_status(){
+
+        //given
+        wireMockServer.stubFor(WireMock.get("/.api/v1.0/random?min=1&max=99&count=6")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.UNAUTHORIZED.value())
+                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE))
+        );
+
+        //when
+
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+
+        // then
+        assertAll(
+                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable.getMessage()).isEqualTo("401 UNAUTHORIZED")
+        );
+
 
     }
 
