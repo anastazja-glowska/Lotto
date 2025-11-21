@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.lotto.WireMockLottoResponse;
 import com.lotto.domain.numbergenerator.RandomNumbersGenerable;
 import com.lotto.domain.numbergenerator.dto.SixRandomNumbersDto;
+import com.lotto.infrastructure.numbergenerator.http.NoContentException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -144,8 +145,8 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
         // then
         assertAll(
-                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
-                () -> assertThat(throwable.getMessage()).isEqualTo("204 NO CONTENT")
+                () -> assertThat(throwable).isInstanceOf(NoContentException.class),
+                () -> assertThat(throwable.getMessage()).isEqualTo("204 NO_CONTENT")
         );
 
 

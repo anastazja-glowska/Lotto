@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.aggregation.LimitOperation;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
@@ -55,6 +56,7 @@ class RandomNumbersGeneratorRestTemplate implements RandomNumbersGenerable {
 
         }catch (ResourceAccessException e){
             log.error("Error while getting generated winning numbers!");
+
             throw new ResourceAccessException("500 INTERNAL SERVER ERROR");
         }
 
@@ -65,7 +67,7 @@ class RandomNumbersGeneratorRestTemplate implements RandomNumbersGenerable {
         List<Integer> numbers = entity.getBody();
         if(numbers == null || numbers.isEmpty()){
             log.error("No numbers found");
-            return Collections.emptySet();
+            throw new NoContentException("204 NO_CONTENT");
         }
 
         HashSet<Integer> distinctNumbers = new HashSet<>(numbers);
