@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Set;
 
@@ -158,7 +159,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     void should_throw_internal_server_error_when_delay_is_5000_ms_and_client_has_1000_ms_read_timeout(){
 
         //given
-        wireMockServer.stubFor(WireMock.get("/.api/v1.0/random?min=1&max=99&count=6")
+        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
@@ -184,7 +185,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     void should_throw_not_found_404_exception_when_external_server_return_not_found_status(){
 
         //given
-        wireMockServer.stubFor(WireMock.get("/.api/v1.0/random?min=1&max=99&count=6")
+        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.NOT_FOUND.value())
                         .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)));
@@ -195,7 +196,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
         // then
         assertAll(
-                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable).isInstanceOf(ResponseStatusException.class),
                 () -> assertThat(throwable.getMessage()).isEqualTo("404 NOT_FOUND")
         );
 
@@ -206,7 +207,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     void should_throw_401_exception_when_external_server_return_unauthorized_status(){
 
         //given
-        wireMockServer.stubFor(WireMock.get("/.api/v1.0/random?min=1&max=99&count=6")
+        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.UNAUTHORIZED.value())
                         .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE))
@@ -218,7 +219,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
         // then
         assertAll(
-                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable).isInstanceOf(ResponseStatusException.class),
                 () -> assertThat(throwable.getMessage()).isEqualTo("401 UNAUTHORIZED")
         );
 
