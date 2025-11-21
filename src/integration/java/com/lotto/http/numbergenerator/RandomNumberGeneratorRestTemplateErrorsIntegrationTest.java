@@ -152,6 +152,31 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     }
 
 
+    @Test
+    @DisplayName("Should throw internal server error when delay is 5000 ms and client has 1000 ms read timeout")
+    void should_throw_internal_server_error_when_delay_is_5000_ms_and_client_has_1000_ms_read_timeout(){
+
+        //given
+        wireMockServer.stubFor(WireMock.get("/.api/v1.0/random?min=1&max=99&count=6")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                        .withBody(retrieveNumbers())
+                        .withFixedDelay(5000)
+        ));
+
+        //when
+
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+
+        // then
+        assertAll(
+                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
+        );
+
+
+    }
 
 
 }
