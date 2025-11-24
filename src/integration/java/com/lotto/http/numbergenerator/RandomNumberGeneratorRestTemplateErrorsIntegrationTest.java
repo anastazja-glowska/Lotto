@@ -1,5 +1,6 @@
 package com.lotto.http.numbergenerator;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -26,6 +27,10 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
     public static final String CONTENT_TYPE_HEADER_KEY = "Content-Type";
     public static final String CONTENT_TYPE_VALUE = "application/json";
+    private static final String EXTERNAL_SERVICE_ENDPOINT = "/api/v1.0/random?min=1&max=99&count=6";
+
+
+
 
     @RegisterExtension
     public static WireMockExtension wireMockServer = WireMockExtension.newInstance()
@@ -39,91 +44,58 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     @Test
     @DisplayName("Should throw internal server error when connection was reset by peer")
     void should_throw_internal_server_error_when_connection_was_reset_by_peer(){
-        // given
 
-        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
-                .willReturn(WireMock.aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
-                        .withFault(Fault.CONNECTION_RESET_BY_PEER)));
-
-
-
-        // when
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable
-                .generateSixRandomNumber(6, 1, 99));
+        //given && when
+        Throwable throwable = fetchWithStub(WireMock.aResponse()
+                .withStatus(HttpStatus.OK.value()
+                ).withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                .withFault(Fault.EMPTY_RESPONSE));
 
         //then
-        assertAll(
-                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
-                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
-        );
+        assertInternalServerError(throwable);
     }
 
     @Test
     @DisplayName("Should throw internal server error when external server fault empty response")
     void should_throw_internal_server_error_when_external_server_fault_empty_response(){
 
-        // given
-
-        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
-                .willReturn(WireMock.aResponse()
-                        .withStatus(HttpStatus.OK.value()
-                                ).withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
-                        .withFault(Fault.EMPTY_RESPONSE)));
-
-        //when
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+        //given && when
+        Throwable throwable = fetchWithStub(WireMock.aResponse()
+                .withStatus(HttpStatus.OK.value()
+                ).withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                .withFault(Fault.EMPTY_RESPONSE));
 
         //then
-        assertAll(
-                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
-                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
-        );
+        assertInternalServerError(throwable);
     }
 
     @Test
     @DisplayName("Should throw internal server error when external server malformed response chunk")
     void should_throw_internal_server_error_when_external_server_malformed_response_chunk(){
-        //given
 
-        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
-                .willReturn(WireMock.aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
-                        .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+        //given && when
+        Throwable throwable = fetchWithStub(WireMock.aResponse()
+                .withStatus(HttpStatus.OK.value())
+                .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                .withFault(Fault.MALFORMED_RESPONSE_CHUNK));
 
-        //when
-
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
-
-        // then
-        assertAll(
-                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
-                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
-        );
+        //then
+        assertInternalServerError(throwable);
     }
 
     @Test
     @DisplayName("Should throw internal server error when external server fault random data then close")
     void should_throw_internal_server_error_when_external_server_fault_random_data_then_close(){
-        // given
-        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
-                .willReturn(WireMock.aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
-                        .withFault(Fault.RANDOM_DATA_THEN_CLOSE)
-                ));
 
-        //when
-
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
-
-        // then
-        assertAll(
-                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
-                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
+        //given && when
+        Throwable throwable = fetchWithStub(WireMock.aResponse()
+                .withStatus(HttpStatus.OK.value())
+                .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                .withFault(Fault.RANDOM_DATA_THEN_CLOSE)
         );
+
+        //then
+        assertInternalServerError(throwable);
 
 
     }
@@ -134,7 +106,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
         //given
 
-        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
+        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT)
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.NO_CONTENT.value())
                         .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
@@ -142,7 +114,8 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
         //when
 
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable
+                .generateSixRandomNumber(6, 1, 99));
 
         // then
         assertAll(
@@ -159,7 +132,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     void should_throw_internal_server_error_when_delay_is_5000_ms_and_client_has_1000_ms_read_timeout(){
 
         //given
-        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
+        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT)
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
@@ -169,7 +142,8 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
         //when
 
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable
+                .generateSixRandomNumber(6, 1, 99));
 
         // then
         assertAll(
@@ -185,14 +159,15 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     void should_throw_not_found_404_exception_when_external_server_return_not_found_status(){
 
         //given
-        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
+        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT)
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.NOT_FOUND.value())
                         .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)));
 
         //when
 
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+        Throwable throwable = catchThrowable(() -> randomNumbersGenerable
+                .generateSixRandomNumber(6, 1, 99));
 
         // then
         assertAll(
@@ -207,7 +182,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     void should_throw_401_exception_when_external_server_return_unauthorized_status(){
 
         //given
-        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
+        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT)
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.UNAUTHORIZED.value())
                         .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE))
@@ -223,6 +198,25 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
                 () -> assertThat(throwable.getMessage()).isEqualTo("401 UNAUTHORIZED")
         );
 
+
+    }
+
+
+    private Throwable fetchWithStub(ResponseDefinitionBuilder response){
+
+        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT).willReturn(response));
+        return catchThrowable(() -> randomNumbersGenerable
+                .generateSixRandomNumber(6, 1, 99));
+    }
+
+    private void assertInternalServerError(Throwable throwable){
+
+        assertAll(
+                () -> assertThat(throwable)
+                        .as("Throwable should be instance of Resource Access Exception")
+                        .isInstanceOf(ResourceAccessException.class),
+                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
+        );
 
     }
 

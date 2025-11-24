@@ -17,27 +17,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
 
+
+    private static final String INPUT_NUMBERS_ENDPOINT = "/inputNumbers";
+
     @Test
     @WithMockUser
     @DisplayName("Should return http status 400 and message when user provide empty numbers")
     void should_return_http_status_400_and_message_when_user_provide_empty_numbers() throws Exception {
         //given && when
-        ResultActions perform = mockMvc.perform(post("/inputNumbers")
-                .content(
-                        """
-                                {
-                                "inputNumbers" : []
-                                }
-                                """.trim()
-                ).contentType(MediaType.APPLICATION_JSON));
 
-        MvcResult result = perform.andExpect(status().isBadRequest()).andReturn();
-        String json = result.getResponse().getContentAsString();
-        ApiValidationErrorDto apiValidationErrorDto = objectMapper.readValue(json, ApiValidationErrorDto.class);
+        ApiValidationErrorDto apiValidationErrorDto = performAndExtractMethodsForApiValidation(INPUT_NUMBERS_ENDPOINT, """
+                {
+                "inputNumbers" : []
+                }
+                """.trim());
 
         //then
         assertAll(
-                () -> assertThat(apiValidationErrorDto.messages()).containsExactlyInAnyOrder("inputNumbers must not be empty"),
+                () -> assertThat(apiValidationErrorDto.messages())
+                        .containsExactlyInAnyOrder("inputNumbers must not be empty"),
                 () -> assertThat(apiValidationErrorDto).isNotNull(),
                 () -> assertThat(apiValidationErrorDto.status()).isEqualTo(HttpStatus.BAD_REQUEST)
         );
@@ -49,15 +47,10 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should return http status 400 and message when user does not provide numbers")
     void should_return_http_status_400_and_message_when_user_does_not_provide_numbers() throws Exception {
         //given && when
-        ResultActions perform = mockMvc.perform(post("/inputNumbers").content(
-                """
-                        {}
-                        """.trim()
-        ).contentType(MediaType.APPLICATION_JSON));
 
-        MvcResult result = perform.andExpect(status().isBadRequest()).andReturn();
-        String json = result.getResponse().getContentAsString();
-        ApiValidationErrorDto mapped = objectMapper.readValue(json, ApiValidationErrorDto.class);
+        ApiValidationErrorDto mapped = performAndExtractMethodsForApiValidation(INPUT_NUMBERS_ENDPOINT, """
+                {}
+                """.trim());
 
         //then
         assertAll(
@@ -130,6 +123,18 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
 
 
     private ApiValidationErrorDto performAndExtractMethods(String endpoint, String body) throws Exception {
+        MvcResult result = mockMvc.perform(post(endpoint)
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String resultJson = result.getResponse().getContentAsString();
+        return objectMapper.readValue(resultJson, ApiValidationErrorDto.class);
+    }
+
+
+    private ApiValidationErrorDto performAndExtractMethodsForApiValidation(String endpoint, String body) throws Exception {
         MvcResult result = mockMvc.perform(post(endpoint)
                         .content(body)
                         .contentType(MediaType.APPLICATION_JSON))

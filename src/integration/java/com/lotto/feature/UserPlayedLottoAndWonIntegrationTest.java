@@ -6,12 +6,10 @@ import com.lotto.WireMockLottoResponse;
 import com.lotto.domain.loginandregister.dto.UserRegisterResponseDto;
 import com.lotto.domain.numbergenerator.NumberGeneratorFacade;
 import com.lotto.domain.numbergenerator.NumberOutOfRangeException;
-import com.lotto.domain.numbergenerator.RandomNumbersGenerable;
 import com.lotto.domain.numbergenerator.WinningNumberRepository;
 import com.lotto.domain.numbergenerator.WinningNumbers;
 import com.lotto.domain.numbergenerator.WinningNumbersNotFoundException;
-import com.lotto.domain.numbergenerator.dto.SixRandomNumbersDto;
-import com.lotto.domain.numbergenerator.dto.WinningNumbersDto;
+
 import com.lotto.domain.numberreceiver.dto.InputNumbersResponseDto;
 import com.lotto.domain.resultannouncer.dto.ResultMessageDto;
 import com.lotto.domain.resultchecker.Player;
