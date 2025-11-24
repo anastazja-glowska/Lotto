@@ -29,7 +29,7 @@ public interface WireMockLottoResponse {
     default String retrieveSomeUserWithSomePassword(){
         return """
                         {
-                            "email" : "someUser",
+                            "email" : "email@gmail.com",
                             "password" : "somePassword"
                         }
                         """.trim();

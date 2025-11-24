@@ -3,6 +3,7 @@ package com.lotto.feature;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.lotto.BaseIntegrationTest;
 import com.lotto.WireMockLottoResponse;
+import com.lotto.domain.loginandregister.dto.UserRegisterResponseDto;
 import com.lotto.domain.numbergenerator.NumberGeneratorFacade;
 import com.lotto.domain.numbergenerator.NumberOutOfRangeException;
 import com.lotto.domain.numbergenerator.RandomNumbersGenerable;
@@ -19,6 +20,7 @@ import com.lotto.domain.resultchecker.PlayersRepository;
 import com.lotto.domain.resultchecker.ResultCheckerFacade;
 import com.lotto.domain.resultchecker.dto.AllPlayersDto;
 import com.lotto.domain.resultchecker.dto.PlayerDto;
+import com.lotto.infrastructure.loginandregister.controller.dto.JwtResponseDto;
 import com.lotto.infrastructure.numbergenerator.scheduler.WinningNumberScheduler;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +39,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -144,15 +147,54 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         //then
         failedInputNumbersRequest.andExpect(status().isForbidden());
-//        step 5: user made POST /register with email=someUser, password=somePassword and system registered user with status OK(200)
-//        step 6: user tried to get JWT token by requesting POST /token with username=someUser, password=somePassword and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
 
+//        step 5: user made POST /register with email=email@gmail.com, password=somePassword and system registered user with status OK(200)
+
+
+        //given && when
+
+        ResultActions successRegisteredResult = mockMvc.perform(post("/register")
+                .content(retrieveSomeUserWithSomePassword())
+                .contentType(MediaType.APPLICATION_JSON));
+
+        String successRegisteredResultJson = successRegisteredResult.andReturn().getResponse().getContentAsString();
+        UserRegisterResponseDto registeredUserResponse = objectMapper.readValue(successRegisteredResultJson,
+                UserRegisterResponseDto.class);
+
+
+        //then
+        successRegisteredResult.andExpect(status().isCreated());
+        assertAll(
+                ()-> assertThat(registeredUserResponse.id()).isNotNull(),
+                () -> assertThat(registeredUserResponse.email()).isEqualTo("email@gmail.com"),
+                () -> assertThat(registeredUserResponse.isRegistered()).isTrue()
+        );
+
+//        step 6: user tried to get JWT token by requesting POST /token with email:email@gmail.com, password=somePassword and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
+
+        //given && when
+
+        ResultActions successLoginRequest = mockMvc.perform(post("/token")
+                .content(retrieveSomeUserWithSomePassword())
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+
+        MvcResult successLoginResult = successLoginRequest.andExpect(status().isOk()).andReturn();
+        String successLoginJson = successLoginResult.getResponse().getContentAsString();
+        JwtResponseDto jwtResponseDto = objectMapper.readValue(successLoginJson, JwtResponseDto.class);
+        String token = jwtResponseDto.token();
+
+        assertAll(
+                () -> assertThat(jwtResponseDto.email()).isEqualTo("email@gmail.com"),
+                () -> assertThat(token).matches(Pattern.compile("^([A-Za-z0-9-_=]+\\.)+([A-Za-z0-9-_=])+\\.?$")));
 
 
         //        step 7: user made POST /inputNumbers with header “Authorization: Bearer AAAA.BBBB.CCC” with 6 numbers (1, 2, 3, 4, 5, 6) at 8-11-2025 10:00 and system returned OK(200) with message: “success” and Ticket (DrawDate:8.11.2025 12:00 (Saturday), TicketId: sampleTicketId)
 
         //given & when
         ResultActions perform = mockMvc.perform(post("/inputNumbers")
+                        .header("Authorization", "Bearer " + token)
                 .content(
                         retrieveInputNumbers()
                 )
@@ -178,7 +220,8 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
         //        step 8 user make GET request /results/{notExistingId} with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned 404
 
         //given & when
-        ResultActions performResultsWithNotExistingId = mockMvc.perform(get("/results/" + "notExistingId"));
+        ResultActions performResultsWithNotExistingId = mockMvc.perform(get("/results/" + "notExistingId")
+                .header("Authorization", "Bearer " + token));
         //then
         performResultsWithNotExistingId.andExpect(status().isNotFound())
                 .andExpect(content().json(
@@ -230,10 +273,20 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         //        step 12: user made GET /results/sampleTicketId with no jwt token and system returned FORBIDDEN 403
 
+        //given && when
+
+        ResultActions failedGetResultsRequest = mockMvc.perform(get("/results/" + ticketId)
+                .contentType(MediaType.APPLICATION_JSON));
+
+
+        //then
+        failedGetResultsRequest.andExpect(status().isForbidden());
+
 //        step 13: user made GET /results/sampleTicketId with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned 200 (OK)
 
         //given && when
-        MvcResult returnedWinningInfo = mockMvc.perform(get("/results/" + ticketId)).andReturn();
+        MvcResult returnedWinningInfo = mockMvc.perform(get("/results/" + ticketId)
+                .header("Authorization", "Bearer " + token)).andReturn();
         String winningInfoJson = returnedWinningInfo.getResponse().getContentAsString();
         ResultMessageDto resultMessageDto = objectMapper.readValue(winningInfoJson, ResultMessageDto.class);
 
