@@ -24,6 +24,7 @@ public class JwtAuthenticatorFacade {
 
     private final AuthenticationManager authenticationManager;
     private final Clock clock;
+    private final JwtConfigurationProperties jwtConfigurationProperties;
 
     public JwtResponseDto authenticateAndGenerateToken(@Valid TokenRequestDto loginRequest) {
 
@@ -42,11 +43,11 @@ public class JwtAuthenticatorFacade {
     }
 
     private String createToken(User user) {
-        String secretKey = " abc";
+        String secretKey = jwtConfigurationProperties.secret();
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
         Instant now = LocalDateTime.now(clock).toInstant(ZoneOffset.UTC);
-        Instant expirestAt = now.plus(Duration.ofDays(20));
-        String issuer = "Lotto";
+        Instant expirestAt = now.plus(Duration.ofDays(jwtConfigurationProperties.expirationDays()));
+        String issuer = jwtConfigurationProperties.issuer();
         return JWT.create()
                 .withSubject(user.getUsername())
                 .withIssuer(issuer)

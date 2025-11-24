@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
                         .requestMatchers("/token/**").permitAll()
-                        .requestMatchers("/register/**").permitAll()
+                        .requestMatchers("/register", "/register/**").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(sess ->

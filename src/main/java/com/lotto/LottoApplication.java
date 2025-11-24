@@ -1,6 +1,7 @@
 package com.lotto;
 
 import com.lotto.infrastructure.numbergenerator.http.RandomGeneratorRestTemplateConfig;
+import com.lotto.infrastructure.security.jwt.JwtConfigurationProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,7 +11,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableConfigurationProperties(RandomGeneratorRestTemplateConfig.class)
+@EnableConfigurationProperties({RandomGeneratorRestTemplateConfig.class, JwtConfigurationProperties.class})
 @EnableScheduling
 @EnableMongoRepositories
 public class LottoApplication {
