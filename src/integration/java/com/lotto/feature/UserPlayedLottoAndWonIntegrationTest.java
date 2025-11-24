@@ -70,7 +70,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
 
 
-    private LocalDateTime drawDate = LocalDateTime.of(2025, 11, 8, 12, 0, 0);
+    private final LocalDateTime drawDate = LocalDateTime.of(2025, 11, 8, 12, 0, 0);
 
     @BeforeEach
     void setup() {
@@ -135,6 +135,15 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
 
 //        step 4: user made POST /inputNumbers with no jwt token and system returned FORBIDDEN 403
+
+        //given && when
+
+        ResultActions failedInputNumbersRequest = mockMvc.perform(post("/inputNumbers")
+                .content(retrieveInputNumbers())
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        failedInputNumbersRequest.andExpect(status().isForbidden());
 //        step 5: user made POST /register with email=someUser, password=somePassword and system registered user with status OK(200)
 //        step 6: user tried to get JWT token by requesting POST /token with username=someUser, password=somePassword and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
 

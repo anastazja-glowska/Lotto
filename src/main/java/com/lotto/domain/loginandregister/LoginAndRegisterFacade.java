@@ -4,8 +4,10 @@ import com.lotto.domain.loginandregister.dto.UserDto;
 import com.lotto.domain.loginandregister.dto.UserRegisterRequestDto;
 import com.lotto.domain.loginandregister.dto.UserRegisterResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
+@Component
 public class LoginAndRegisterFacade {
 
     private final UserAdder userAdder;
