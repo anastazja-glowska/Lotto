@@ -21,16 +21,13 @@ import com.lotto.domain.resultchecker.ResultCheckerFacade;
 import com.lotto.domain.resultchecker.dto.AllPlayersDto;
 import com.lotto.domain.resultchecker.dto.PlayerDto;
 import com.lotto.infrastructure.loginandregister.controller.dto.JwtResponseDto;
-import com.lotto.infrastructure.numbergenerator.scheduler.WinningNumberScheduler;
+
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -41,15 +38,11 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -58,6 +51,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Log4j2
 class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implements WireMockLottoResponse {
 
+    private static final String INPUT_NUMBERS_ENDPOINT = "/inputNumbers";
+    private static final String TOKEN_ENDPOINT = "/token";
+    private static final String REGISTER_ENDPOINT = "/register";
+    private static final String EXTERNAL_SERVICE_ENDPOINT = "/api/v1.0/random?min=1&max=99&count=6";
+    private static final String RESULTS_ENDPOINT = "/results";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_TYPE_VALUE = "application/json";
 
     @Autowired
     NumberGeneratorFacade numberGeneratorFacade;
@@ -87,17 +87,17 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
     @DisplayName("Should user win and system should generate winners")
     void should_user_win_and_system_should_generate_winners() throws Exception {
 
-        //        step 1: external service returns 6 random numbers (1,2,3,4,5,6)
+        //step 1: external service returns 6 random numbers (1,2,3,4,5,6)
 
         //given && when && then
 
-        wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
+        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT)
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
-                        .withHeader("Content-Type", "application/json")
+                        .withHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE)
                                 .withBody(retrieveNumbers())));
 
-        //        step 2: system generated winning numbers for draw date: 8.11.2025 12:00
+        //  step 2: system generated winning numbers for draw date: 8.11.2025 12:00
 
 
         //given && when && then
@@ -115,13 +115,11 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
                 });
 
 
-//        step 3: user tried to get JWT token by requesting POST /token with email=someUser, password=somePassword and system returned UNAUTHORIZED(401)
+//        step 3: user tried to get JWT token by requesting POST /token with email=email@gmail.com, password=somePassword and system returned UNAUTHORIZED(401)
 
         //given && when
 
-        ResultActions failedLoginRequest = mockMvc.perform(post("/token")
-                .content(retrieveSomeUserWithSomePassword())
-                .contentType(MediaType.APPLICATION_JSON));
+        ResultActions failedLoginRequest = postJson(TOKEN_ENDPOINT, retrieveSomeUserWithSomePassword());
 
         //then
 
@@ -141,21 +139,18 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         //given && when
 
-        ResultActions failedInputNumbersRequest = mockMvc.perform(post("/inputNumbers")
-                .content(retrieveInputNumbers())
-                .contentType(MediaType.APPLICATION_JSON));
+        ResultActions failedInputNumbersRequest  = postJson(INPUT_NUMBERS_ENDPOINT, retrieveInputNumbers());
 
         //then
         failedInputNumbersRequest.andExpect(status().isForbidden());
+
 
 //        step 5: user made POST /register with email=email@gmail.com, password=somePassword and system registered user with status OK(200)
 
 
         //given && when
 
-        ResultActions successRegisteredResult = mockMvc.perform(post("/register")
-                .content(retrieveSomeUserWithSomePassword())
-                .contentType(MediaType.APPLICATION_JSON));
+        ResultActions successRegisteredResult = postJson(REGISTER_ENDPOINT, retrieveSomeUserWithSomePassword());
 
         String successRegisteredResultJson = successRegisteredResult.andReturn().getResponse().getContentAsString();
         UserRegisterResponseDto registeredUserResponse = objectMapper.readValue(successRegisteredResultJson,
@@ -174,9 +169,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         //given && when
 
-        ResultActions successLoginRequest = mockMvc.perform(post("/token")
-                .content(retrieveSomeUserWithSomePassword())
-                .contentType(MediaType.APPLICATION_JSON));
+        ResultActions  successLoginRequest = postJson(TOKEN_ENDPOINT, retrieveSomeUserWithSomePassword());
 
         //then
 
@@ -193,7 +186,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
         //        step 7: user made POST /inputNumbers with header “Authorization: Bearer AAAA.BBBB.CCC” with 6 numbers (1, 2, 3, 4, 5, 6) at 8-11-2025 10:00 and system returned OK(200) with message: “success” and Ticket (DrawDate:8.11.2025 12:00 (Saturday), TicketId: sampleTicketId)
 
         //given & when
-        ResultActions perform = mockMvc.perform(post("/inputNumbers")
+        ResultActions perform = mockMvc.perform(post(INPUT_NUMBERS_ENDPOINT)
                         .header("Authorization", "Bearer " + token)
                 .content(
                         retrieveInputNumbers()
@@ -220,19 +213,23 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
         //        step 8 user make GET request /results/{notExistingId} with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned 404
 
         //given & when
-        ResultActions performResultsWithNotExistingId = mockMvc.perform(get("/results/" + "notExistingId")
+
+        ResultActions performResultsWithNotExistingId = mockMvc.perform(get(RESULTS_ENDPOINT + "/" + "notExistingId")
                 .header("Authorization", "Bearer " + token));
+
         //then
         performResultsWithNotExistingId.andExpect(status().isNotFound())
                 .andExpect(content().json(
                         retrieveNotFoundResponse()
                 ));
 
+
 //        step 9: 3 days and 55 minutes passed, and it is 5 minute before draw (8.11.2025 11:55)
 
         // given && when && then
+
             clock.plusDaysAndMinutes(3, 55);
-            log.info("Clock " +  clock);
+            log.info("Clock plus 3 Days and 55 Minutes " +  clock);
 
 //        step 10: system generated result for TicketId: sampleTicketId with draw date 8.11.2025 12:00, and saved it with 6 hits
 
@@ -268,24 +265,27 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 //        step 11: 6 minutes passed and it is 1 minute after the draw (8.11.2025 12:01)
 
         //given && when && then
+
         clock.plusMinutes(6);
 
 
-        //        step 12: user made GET /results/sampleTicketId with no jwt token and system returned FORBIDDEN 403
+        //  step 12: user made GET /results/sampleTicketId with no jwt token and system returned FORBIDDEN 403
 
         //given && when
 
-        ResultActions failedGetResultsRequest = mockMvc.perform(get("/results/" + ticketId)
+        ResultActions failedGetResultsRequest = mockMvc.perform(get( RESULTS_ENDPOINT+ "/" + ticketId)
                 .contentType(MediaType.APPLICATION_JSON));
 
 
         //then
         failedGetResultsRequest.andExpect(status().isForbidden());
 
+
 //        step 13: user made GET /results/sampleTicketId with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned 200 (OK)
 
         //given && when
-        MvcResult returnedWinningInfo = mockMvc.perform(get("/results/" + ticketId)
+
+        MvcResult returnedWinningInfo = mockMvc.perform(get(RESULTS_ENDPOINT+ "/" + ticketId)
                 .header("Authorization", "Bearer " + token)).andReturn();
         String winningInfoJson = returnedWinningInfo.getResponse().getContentAsString();
         ResultMessageDto resultMessageDto = objectMapper.readValue(winningInfoJson, ResultMessageDto.class);
@@ -304,5 +304,12 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
                         );
 
 
+    }
+
+    private ResultActions postJson(String endpoint, String body) throws Exception {
+
+        return mockMvc.perform(post(endpoint)
+                        .content(body)
+                .contentType(MediaType.APPLICATION_JSON));
     }
 }
