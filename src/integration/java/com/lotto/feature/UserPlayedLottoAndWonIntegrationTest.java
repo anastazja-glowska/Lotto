@@ -94,7 +94,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
                         .withHeader("Content-Type", "application/json")
                                 .withBody(retrieveNumbers())));
 
-        //        step 2: system generated winning numbers for draw date: 15.11.2025 12:00
+        //        step 2: system generated winning numbers for draw date: 8.11.2025 12:00
 
 
         //given && when && then
@@ -112,8 +112,35 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
                 });
 
 
+//        step 3: user tried to get JWT token by requesting POST /token with email=someUser, password=somePassword and system returned UNAUTHORIZED(401)
 
-        //        step 3: user made POST /inputNumbers with 6 numbers (1, 2, 3, 4, 5, 6) at 8-11-2025 10:00 and system returned OK(200) with message: “success” and Ticket (DrawDate:8.11.2025 12:00 (Saturday), TicketId: sampleTicketId)
+        //given && when
+
+        ResultActions failedLoginRequest = mockMvc.perform(post("/token")
+                .content(retrieveSomeUserWithSomePassword())
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+
+        failedLoginRequest.andExpect(status().isUnauthorized())
+                .andExpect(content().json(
+                        """
+                                  {
+                                    "message" : "Bad Credentials",
+                                    "status" : "UNAUTHORIZED"
+                                   }
+                                """.trim()
+                ));
+
+
+
+//        step 4: user made POST /inputNumbers with no jwt token and system returned FORBIDDEN 403
+//        step 5: user made POST /register with email=someUser, password=somePassword and system registered user with status OK(200)
+//        step 6: user tried to get JWT token by requesting POST /token with username=someUser, password=somePassword and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
+
+
+
+        //        step 7: user made POST /inputNumbers with header “Authorization: Bearer AAAA.BBBB.CCC” with 6 numbers (1, 2, 3, 4, 5, 6) at 8-11-2025 10:00 and system returned OK(200) with message: “success” and Ticket (DrawDate:8.11.2025 12:00 (Saturday), TicketId: sampleTicketId)
 
         //given & when
         ResultActions perform = mockMvc.perform(post("/inputNumbers")
@@ -139,7 +166,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
 
 
-        //        step 4 user make GET request /results/{notExistingId} and system returned 404
+        //        step 8 user make GET request /results/{notExistingId} with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned 404
 
         //given & when
         ResultActions performResultsWithNotExistingId = mockMvc.perform(get("/results/" + "notExistingId"));
@@ -149,13 +176,13 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
                         retrieveNotFoundResponse()
                 ));
 
-//        step 5: 3 days and 55 minutes passed, and it is 5 minute before draw (8.11.2025 11:55)
+//        step 9: 3 days and 55 minutes passed, and it is 5 minute before draw (8.11.2025 11:55)
 
         // given && when && then
             clock.plusDaysAndMinutes(3, 55);
             log.info("Clock " +  clock);
 
-//        step 6: system generated result for TicketId: sampleTicketId with draw date 8.11.2025 12:00, and saved it with 6 hits
+//        step 10: system generated result for TicketId: sampleTicketId with draw date 8.11.2025 12:00, and saved it with 6 hits
 
         // given
         Player player = Player.builder()
@@ -186,13 +213,15 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
                 });
 
 
-//        step 7: 6 minutes passed and it is 1 minute after the draw (8.11.2025 12:01)
+//        step 11: 6 minutes passed and it is 1 minute after the draw (8.11.2025 12:01)
 
         //given && when && then
         clock.plusMinutes(6);
 
 
-//        step 8: user made GET /results/sampleTicketId and system returned 200 (OK)
+        //        step 12: user made GET /results/sampleTicketId with no jwt token and system returned FORBIDDEN 403
+
+//        step 13: user made GET /results/sampleTicketId with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned 200 (OK)
 
         //given && when
         MvcResult returnedWinningInfo = mockMvc.perform(get("/results/" + ticketId)).andReturn();

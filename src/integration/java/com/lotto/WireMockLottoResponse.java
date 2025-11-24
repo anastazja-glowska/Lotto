@@ -25,4 +25,13 @@ public interface WireMockLottoResponse {
                                }
                                """.trim();
     }
+
+    default String retrieveSomeUserWithSomePassword(){
+        return """
+                        {
+                            "email" : "someUser",
+                            "password" : "somePassword"
+                        }
+                        """.trim();
+    }
 }

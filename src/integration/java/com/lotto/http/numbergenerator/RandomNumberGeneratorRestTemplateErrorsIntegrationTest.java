@@ -37,8 +37,8 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
 
     @Test
-    @DisplayName("Should return null numbers when connection was reset by peer")
-    void should_return_null_numbers_when_connection_was_reset_by_peer(){
+    @DisplayName("Should throw internal server error when connection was reset by peer")
+    void should_throw_internal_server_error_when_connection_was_reset_by_peer(){
         // given
 
         wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
@@ -61,8 +61,8 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     }
 
     @Test
-    @DisplayName("Should return null numbers when external server fault empty response")
-    void should_return_null_numbers_when_external_server_fault_empty_response(){
+    @DisplayName("Should throw internal server error when external server fault empty response")
+    void should_throw_internal_server_error_when_external_server_fault_empty_response(){
 
         // given
 
@@ -83,8 +83,8 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     }
 
     @Test
-    @DisplayName("Should return null numbers when external server malformed response chunk")
-    void should_return_null_numbers_when_external_server_malformed_response_chunk(){
+    @DisplayName("Should throw internal server error when external server malformed response chunk")
+    void should_throw_internal_server_error_when_external_server_malformed_response_chunk(){
         //given
 
         wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
@@ -105,8 +105,8 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     }
 
     @Test
-    @DisplayName("Should return null numbers when external server fault random data then close")
-    void should_return_null_numbers_when_external_server_fault_random_data_then_close(){
+    @DisplayName("Should throw internal server error when external server fault random data then close")
+    void should_throw_internal_server_error_when_external_server_fault_random_data_then_close(){
         // given
         wireMockServer.stubFor(WireMock.get("/api/v1.0/random?min=1&max=99&count=6")
                 .willReturn(WireMock.aResponse()
