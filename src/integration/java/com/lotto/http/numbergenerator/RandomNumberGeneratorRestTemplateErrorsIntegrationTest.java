@@ -30,20 +30,18 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     private static final String EXTERNAL_SERVICE_ENDPOINT = "/api/v1.0/random?min=1&max=99&count=6";
 
 
-
-
     @RegisterExtension
     public static WireMockExtension wireMockServer = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort())
             .build();
 
     RandomNumbersGenerable randomNumbersGenerable = new RandomNumberGeneratorRestTemplateIntegrationTestConfig()
-                    .remoteNumberGeneratorClient(wireMockServer.getPort(), 1000, 1000);
+            .remoteNumberGeneratorClient(wireMockServer.getPort(), 1000, 1000);
 
 
     @Test
     @DisplayName("Should throw internal server error when connection was reset by peer")
-    void should_throw_internal_server_error_when_connection_was_reset_by_peer(){
+    void should_throw_internal_server_error_when_connection_was_reset_by_peer() {
 
         //given && when
         Throwable throwable = fetchWithStub(WireMock.aResponse()
@@ -57,7 +55,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
     @Test
     @DisplayName("Should throw internal server error when external server fault empty response")
-    void should_throw_internal_server_error_when_external_server_fault_empty_response(){
+    void should_throw_internal_server_error_when_external_server_fault_empty_response() {
 
         //given && when
         Throwable throwable = fetchWithStub(WireMock.aResponse()
@@ -71,7 +69,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
     @Test
     @DisplayName("Should throw internal server error when external server malformed response chunk")
-    void should_throw_internal_server_error_when_external_server_malformed_response_chunk(){
+    void should_throw_internal_server_error_when_external_server_malformed_response_chunk() {
 
         //given && when
         Throwable throwable = fetchWithStub(WireMock.aResponse()
@@ -85,7 +83,7 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
     @Test
     @DisplayName("Should throw internal server error when external server fault random data then close")
-    void should_throw_internal_server_error_when_external_server_fault_random_data_then_close(){
+    void should_throw_internal_server_error_when_external_server_fault_random_data_then_close() {
 
         //given && when
         Throwable throwable = fetchWithStub(WireMock.aResponse()
@@ -102,20 +100,14 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
     @Test
     @DisplayName("Should throw exception no content when status is 204 no content")
-    void should_throw_exception_no_content_when_status_is_204_no_content(){
+    void should_throw_exception_no_content_when_status_is_204_no_content() {
 
-        //given
+        //given && when
 
-        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT)
-                .willReturn(WireMock.aResponse()
-                        .withStatus(HttpStatus.NO_CONTENT.value())
-                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
-                        .withBody(retrieveNumbers())));
-
-        //when
-
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable
-                .generateSixRandomNumber(6, 1, 99));
+        Throwable throwable = fetchWithStub(WireMock.aResponse()
+                .withStatus(HttpStatus.NO_CONTENT.value())
+                .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                .withBody(retrieveNumbers()));
 
         // then
         assertAll(
@@ -129,45 +121,30 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
     @Test
     @DisplayName("Should throw internal server error when delay is 5000 ms and client has 1000 ms read timeout")
-    void should_throw_internal_server_error_when_delay_is_5000_ms_and_client_has_1000_ms_read_timeout(){
+    void should_throw_internal_server_error_when_delay_is_5000_ms_and_client_has_1000_ms_read_timeout() {
+        //given && when
 
-        //given
-        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT)
-                .willReturn(WireMock.aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
-                        .withBody(retrieveNumbers())
-                        .withFixedDelay(5000)
-        ));
-
-        //when
-
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable
-                .generateSixRandomNumber(6, 1, 99));
+        Throwable throwable = fetchWithStub(WireMock.aResponse()
+                .withStatus(HttpStatus.OK.value())
+                .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)
+                .withBody(retrieveNumbers())
+                .withFixedDelay(5000)
+        );
 
         // then
-        assertAll(
-                () -> assertThat(throwable).isInstanceOf(ResourceAccessException.class),
-                () -> assertThat(throwable.getMessage()).isEqualTo("500 INTERNAL SERVER ERROR")
-        );
+        assertInternalServerError(throwable);
 
 
     }
 
     @Test
     @DisplayName("Should throw not found 404 exception when external server return not found status")
-    void should_throw_not_found_404_exception_when_external_server_return_not_found_status(){
+    void should_throw_not_found_404_exception_when_external_server_return_not_found_status() {
+        //given && when
 
-        //given
-        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT)
-                .willReturn(WireMock.aResponse()
-                        .withStatus(HttpStatus.NOT_FOUND.value())
-                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE)));
-
-        //when
-
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable
-                .generateSixRandomNumber(6, 1, 99));
+        Throwable throwable = fetchWithStub(WireMock.aResponse()
+                .withStatus(HttpStatus.NOT_FOUND.value())
+                .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE));
 
         // then
         assertAll(
@@ -179,18 +156,12 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
 
     @Test
     @DisplayName("Should throw 401 exception when external server return unauthorized status")
-    void should_throw_401_exception_when_external_server_return_unauthorized_status(){
+    void should_throw_401_exception_when_external_server_return_unauthorized_status() {
+        //given && when
 
-        //given
-        wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT)
-                .willReturn(WireMock.aResponse()
-                        .withStatus(HttpStatus.UNAUTHORIZED.value())
-                        .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE))
-        );
-
-        //when
-
-        Throwable throwable = catchThrowable(() -> randomNumbersGenerable.generateSixRandomNumber(6, 1, 99));
+        Throwable throwable = fetchWithStub(WireMock.aResponse()
+                .withStatus(HttpStatus.UNAUTHORIZED.value())
+                .withHeader(CONTENT_TYPE_HEADER_KEY, CONTENT_TYPE_VALUE));
 
         // then
         assertAll(
@@ -202,14 +173,14 @@ class RandomNumberGeneratorRestTemplateErrorsIntegrationTest implements WireMock
     }
 
 
-    private Throwable fetchWithStub(ResponseDefinitionBuilder response){
+    private Throwable fetchWithStub(ResponseDefinitionBuilder response) {
 
         wireMockServer.stubFor(WireMock.get(EXTERNAL_SERVICE_ENDPOINT).willReturn(response));
         return catchThrowable(() -> randomNumbersGenerable
                 .generateSixRandomNumber(6, 1, 99));
     }
 
-    private void assertInternalServerError(Throwable throwable){
+    private void assertInternalServerError(Throwable throwable) {
 
         assertAll(
                 () -> assertThat(throwable)

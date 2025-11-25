@@ -11,11 +11,6 @@ import java.time.Clock;
 @EnableConfigurationProperties(WinningNumberGeneratorConfiguration.class)
 class NumberGeneratorConfig {
 
-//    @Bean
-//    Clock clock(){
-//        return Clock.systemUTC();
-//    }
-
 
 
     @Bean

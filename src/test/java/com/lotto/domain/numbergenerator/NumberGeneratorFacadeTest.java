@@ -18,6 +18,9 @@ import static org.mockito.Mockito.when;
 @Log4j2
 class NumberGeneratorFacadeTest {
 
+
+    private static final LocalDateTime NEXT_DRAWN_DATE = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
+
     private final RandomGenerable randomGenerable = new RandomGenerableImpl();
     private final WinningNumberRepository winningNumberRepository = new WinningNumberRepositoryTestImpl();
     NumberReceiverFacade numberReceiverFacade = mock(NumberReceiverFacade.class);
@@ -29,10 +32,9 @@ class NumberGeneratorFacadeTest {
                     .build();
 
 
-//    private final RandomOneNumberRetriever randomNumberRetriever = new RandomOneNumberGenerator();
     private final RandomNumbersGenerable randomNumbersGenerator = new SecureRandomGeneratorTestImpl();
 
-    private final NumberValidator numberValidator= new NumberValidator();
+    private final NumberValidator numberValidator = new NumberValidator();
     private final WinningNumberGenerator winningNumberGenerator =
             new WinningNumberGenerator(numberReceiverFacade, generatorConfiguration, randomGenerable,
                     numberValidator, winningNumberRepository, randomNumbersGenerator);
@@ -43,11 +45,10 @@ class NumberGeneratorFacadeTest {
 
     @Test
     @DisplayName("Should generate six random numbers")
-    void should_generate_six_random_numbers(){
+    void should_generate_six_random_numbers() {
 
         // given
-        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
-        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
+        mockDrawDate();
 
         //when
         WinningNumbersDto winningNumbersDto = numberGeneratorFacade.generateWinningNumbers();
@@ -62,13 +63,12 @@ class NumberGeneratorFacadeTest {
 
     @Test
     @DisplayName("Should generate six random numbers in correct range")
-    void should_generate_six_random_numbers_in_correct_range(){
+    void should_generate_six_random_numbers_in_correct_range() {
 
         // given
-        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
-        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
-        int lower_band =1;
-        int upper_band =99;
+        mockDrawDate();
+        int lower_band = 1;
+        int upper_band = 99;
 
         //when
         WinningNumbersDto winningNumbersDto = numberGeneratorFacade.generateWinningNumbers();
@@ -87,35 +87,33 @@ class NumberGeneratorFacadeTest {
 
     @Test
     @DisplayName("Should retrieve winning numbers by date")
-    void should_retrieve_winning_numbers_by_date(){
+    void should_retrieve_winning_numbers_by_date() {
 
         // given
-        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
-        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
+        mockDrawDate();
 
         WinningNumbersDto generatedWinningNumbers = numberGeneratorFacade.generateWinningNumbers();
         log.info("Generated winning Numbers " + generatedWinningNumbers);
         Set<Integer> generatedNumbers = generatedWinningNumbers.getWinningNumbers();
 
         //when
-        WinningNumbersDto winningNumbersDto = numberGeneratorFacade.retrieveWinningNumbersByDate(nextDrawDate);
+        WinningNumbersDto winningNumbersDto = numberGeneratorFacade.retrieveWinningNumbersByDate(NEXT_DRAWN_DATE);
 
 
         //then
-        assertThat(winningNumbersDto.getDate()).isEqualTo(nextDrawDate);
+        assertThat(winningNumbersDto.getDate()).isEqualTo(NEXT_DRAWN_DATE);
         assertThat(winningNumbersDto.getWinningNumbers()).isEqualTo(generatedNumbers);
     }
 
     @Test
     @DisplayName("Should throw exception when winning numbers not found")
-    void should_throw_exception_when_winning_numbers_not_found(){
+    void should_throw_exception_when_winning_numbers_not_found() {
 
         // given
-        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
-        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
+        mockDrawDate();
 
         //when
-        Throwable throwable = catchThrowable(() -> numberGeneratorFacade.retrieveWinningNumbersByDate(nextDrawDate));
+        Throwable throwable = catchThrowable(() -> numberGeneratorFacade.retrieveWinningNumbersByDate(NEXT_DRAWN_DATE));
 
         //then
         assertThat(throwable).isInstanceOf(WinningNumbersNotFoundException.class);
@@ -125,11 +123,11 @@ class NumberGeneratorFacadeTest {
 
     @Test
     @DisplayName("Should save winning numbers to winning numbers repository")
-    void should_save_winning_numbers_to_winning_numbers_repository(){
+    void should_save_winning_numbers_to_winning_numbers_repository() {
 
         // given
-        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
-        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
+
+        mockDrawDate();
 
         //when
         WinningNumbersDto generatedWinningNumbers = numberGeneratorFacade.generateWinningNumbers();
@@ -146,16 +144,15 @@ class NumberGeneratorFacadeTest {
 
     @Test
     @DisplayName("Should return true if winning numbers exists by date")
-    void should_return_true_if_winning_numbers_exists_by_date(){
+    void should_return_true_if_winning_numbers_exists_by_date() {
 
         // given
-        LocalDateTime nextDrawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
-        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(nextDrawDate);
+        mockDrawDate();
         Set<Integer> winningNumbers = Set.of(1, 2, 3, 4, 7, 8);
 
         WinningNumbers numbers = WinningNumbers.builder()
                 .id("001")
-                .date(nextDrawDate)
+                .date(NEXT_DRAWN_DATE)
                 .winningNumbers(winningNumbers)
                 .build();
 
@@ -166,6 +163,11 @@ class NumberGeneratorFacadeTest {
 
         //then
         assertThat(areNumbersExisting).isTrue();
+    }
+
+
+    private void mockDrawDate() {
+        when(numberReceiverFacade.retrieveNextDrawnDate()).thenReturn(NEXT_DRAWN_DATE);
     }
 
 }

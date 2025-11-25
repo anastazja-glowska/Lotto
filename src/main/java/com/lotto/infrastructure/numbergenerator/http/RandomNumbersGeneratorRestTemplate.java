@@ -44,9 +44,11 @@ class RandomNumbersGeneratorRestTemplate implements RandomNumbersGenerable {
             ResponseEntity<List<Integer>> responseEntity = makeGetRequest(count, lowerBand, upperBand, requestEntity);
             Set<Integer> sixDistinctRandomNumbers = getSixDistinctRandomNumbers(responseEntity);
             if(sixDistinctRandomNumbers.size() < MAXIMAL_WINNING_NUMBERS){
+
                 log.error("Six distinct random numbers were not generated, size is not correct!");
                 return generateSixRandomNumber(count, lowerBand, upperBand);
             }
+
             log.info("Winning numbers generated with success!");
             return SixRandomNumbersDto.builder()
                     .numbers(sixDistinctRandomNumbers)

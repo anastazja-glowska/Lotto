@@ -28,6 +28,7 @@ class NumberChecker {
 
         if (!validationInfos.isEmpty()) {
             String resultMessages = numberValidator.allResultMessage();
+            log.info("Result messages: " +  resultMessages);
             return new InputNumbersResponseDto(resultMessages, null);
         }
 
@@ -60,7 +61,7 @@ class NumberChecker {
                 .map(TicketMapper::mapFromTicket)
                 .toList();
 
-        log.info("Tickets dtos size after lambda " + list.size());
+        log.info("Tickets dtos size after lambda in number checker " + list.size());
 
         return list;
     }

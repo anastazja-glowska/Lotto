@@ -21,6 +21,8 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @Log4j2
 class NumberReceiverFacadeTest {
 
+    private static final Set<Integer> NUMBERS_FROM_USER = Set.of(1, 2, 3, 4, 5, 6);
+
 
     private final TicketRepository ticketRepository = new TicketRepositoryTestImpl();
     private final HashGenerable hashGenerator = new HashGenerableTestImpl();
@@ -35,21 +37,20 @@ class NumberReceiverFacadeTest {
     @DisplayName("Should return correct response when user gave six numbers")
     void should_return_correct_response_when_user_gave_six_numbers() {
 
-        //given 
-        Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
+        //given
         DrawDateGenerator drawDateGenerator = new DrawDateGenerator(clock);
         LocalDateTime nextDrawnDate = drawDateGenerator.getNextDrawnDate();
 
 
         //when
 
-        InputNumbersResponseDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
+        InputNumbersResponseDto result = numberReceiverFacade.inputNumbers(NUMBERS_FROM_USER);
 
         //then
 
         TicketDto expectedticketDto = TicketDto.builder()
                 .drawDate(nextDrawnDate)
-                .numbersFromUser(numbersFromUser)
+                .numbersFromUser(NUMBERS_FROM_USER)
                 .ticketId(result.ticketDto().ticketId())
                 .build();
 
@@ -64,8 +65,6 @@ class NumberReceiverFacadeTest {
     @Test
     @DisplayName("Should return failed answer when user gave less than six numbers")
     void should_return_failed_answer_when_user_gave_less_than_six_numbers() {
-
-
         //given
 
         Set<Integer> numbersFromUser = Set.of(1, 3, 4, 5, 6);
@@ -87,7 +86,6 @@ class NumberReceiverFacadeTest {
     void should_return_failed_when_user_gave_more_than_six_numbers() {
 
         //given
-
         Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6, 7);
         //when
 
@@ -109,7 +107,6 @@ class NumberReceiverFacadeTest {
         Set<Integer> numbersFromUser = Set.of(1, 200, 3, 4, 5, 6);
 
         //when
-
         InputNumbersResponseDto result = numberReceiverFacade.inputNumbers(numbersFromUser);
 
 
@@ -125,8 +122,7 @@ class NumberReceiverFacadeTest {
     void should_return_ticket_by_hash() {
 
         //given
-        Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
-        String hash = numberReceiverFacade.inputNumbers(numbersFromUser).ticketDto().ticketId();
+        String hash = numberReceiverFacade.inputNumbers(NUMBERS_FROM_USER).ticketDto().ticketId();
 
         //when
 
@@ -146,11 +142,11 @@ class NumberReceiverFacadeTest {
         Clock fixedClock = Clock.fixed(LocalDateTime.of(2025, 10, 18, 12, 0, 0)
                 .toInstant(ZoneOffset.UTC), ZoneId.of(("Europe/London")));
 
-        Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
+
         NumberReceiverFacade facade = new NumberReceiverConfiguration()
                 .numberReceiverFacade(fixedClock, ticketRepository, hashGenerator);
 
-        facade.inputNumbers(numbersFromUser);
+        facade.inputNumbers(NUMBERS_FROM_USER);
 
         //when
 
@@ -171,7 +167,6 @@ class NumberReceiverFacadeTest {
 
         //given
 
-        Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
 
         HashGenerable newHashGenerator = new HashGenerator();
         NumberReceiverFacade facade = new NumberReceiverConfiguration()
@@ -179,7 +174,7 @@ class NumberReceiverFacadeTest {
 
 
         //when
-        String hash = facade.inputNumbers(numbersFromUser).ticketDto().ticketId();
+        String hash = facade.inputNumbers(NUMBERS_FROM_USER).ticketDto().ticketId();
 
 
         //then
@@ -196,13 +191,12 @@ class NumberReceiverFacadeTest {
         Clock fixedClock = Clock.fixed(LocalDateTime.of(2025, 11, 8, 10, 0, 0)
                 .toInstant(ZoneOffset.UTC), ZoneId.of(("Europe/London")));
 
-        Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
         NumberReceiverFacade facade = new NumberReceiverConfiguration()
                 .numberReceiverFacade(fixedClock, ticketRepository, hashGenerator);
 
 
         //when
-        LocalDateTime drawnDate = facade.inputNumbers(numbersFromUser).ticketDto().drawDate();
+        LocalDateTime drawnDate = facade.inputNumbers(NUMBERS_FROM_USER).ticketDto().drawDate();
 
 
         //then
@@ -225,11 +219,10 @@ class NumberReceiverFacadeTest {
 
         AdjustableClock fixedClock = new AdjustableClock(instant, zoneId);
 
-        Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
         NumberReceiverFacade facade = new NumberReceiverConfiguration()
                 .numberReceiverFacade(fixedClock, ticketRepository, hashGenerator);
 
-        InputNumbersResponseDto responseDto = facade.inputNumbers(numbersFromUser);
+        InputNumbersResponseDto responseDto = facade.inputNumbers(NUMBERS_FROM_USER);
         InputNumbersResponseDto responseDto1 = facade.inputNumbers(Set.of(1, 2, 3, 8, 5, 6));
         fixedClock.plusDays(7);
         InputNumbersResponseDto responseDto2 = facade.inputNumbers(Set.of(1, 2, 3, 8, 5, 9));
@@ -267,14 +260,14 @@ class NumberReceiverFacadeTest {
         Clock fixedClock = Clock.fixed(LocalDateTime.of(2025, 11, 10, 12, 0, 0)
                 .toInstant(ZoneOffset.UTC), ZoneId.of(("Europe/London")));
 
-        Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
+
         NumberReceiverFacade facade = new NumberReceiverConfiguration()
                 .numberReceiverFacade(fixedClock, ticketRepository, hashGenerator);
 
 
         //when
 
-        LocalDateTime drawnDate = facade.inputNumbers(numbersFromUser).ticketDto().drawDate();
+        LocalDateTime drawnDate = facade.inputNumbers(NUMBERS_FROM_USER).ticketDto().drawDate();
 
 
         //then
@@ -298,11 +291,11 @@ class NumberReceiverFacadeTest {
 
         AdjustableClock fixedClock = new AdjustableClock(instant, zoneId);
 
-        Set<Integer> numbersFromUser = Set.of(1, 2, 3, 4, 5, 6);
+
         NumberReceiverFacade facade = new NumberReceiverConfiguration()
                 .numberReceiverFacade(fixedClock, ticketRepository, hashGenerator);
 
-        InputNumbersResponseDto responseDto = facade.inputNumbers(numbersFromUser);
+        InputNumbersResponseDto responseDto = facade.inputNumbers(NUMBERS_FROM_USER);
 
 
         //when

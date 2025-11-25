@@ -19,6 +19,7 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
 
 
     private static final String INPUT_NUMBERS_ENDPOINT = "/inputNumbers";
+    private static final String REGISTER_ENDPOINT = "/register";
 
     @Test
     @WithMockUser
@@ -26,7 +27,7 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
     void should_return_http_status_400_and_message_when_user_provide_empty_numbers() throws Exception {
         //given && when
 
-        ApiValidationErrorDto apiValidationErrorDto = performAndExtractMethodsForApiValidation(INPUT_NUMBERS_ENDPOINT, """
+        ApiValidationErrorDto apiValidationErrorDto = performAndExtractMethods(INPUT_NUMBERS_ENDPOINT, """
                 {
                 "inputNumbers" : []
                 }
@@ -48,13 +49,13 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
     void should_return_http_status_400_and_message_when_user_does_not_provide_numbers() throws Exception {
         //given && when
 
-        ApiValidationErrorDto mapped = performAndExtractMethodsForApiValidation(INPUT_NUMBERS_ENDPOINT, """
+        ApiValidationErrorDto mapped = performAndExtractMethods(INPUT_NUMBERS_ENDPOINT, """
                 {}
                 """.trim());
 
         //then
         assertAll(
-                ()-> assertThat(mapped.messages()).containsExactlyInAnyOrder("inputNumbers must not be empty",
+                () -> assertThat(mapped.messages()).containsExactlyInAnyOrder("inputNumbers must not be empty",
                         "inputNumbers must not be null"),
                 () -> assertThat(mapped.status()).isEqualTo(HttpStatus.BAD_REQUEST),
                 () -> assertThat(mapped).isNotNull()
@@ -71,7 +72,7 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
 
         //given && when
 
-        ApiValidationErrorDto errors = performAndExtractMethods("/register", """
+        ApiValidationErrorDto errors = performAndExtractMethods(REGISTER_ENDPOINT, """
                 {
                 "username" : "email",
                 "password" : ""
@@ -84,7 +85,7 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
         assertAll(
                 () -> assertThat(errors.messages()).containsExactlyInAnyOrder(
                         "password must have min 6 length size",
-                        "email must not be null", "email must not be empty",   "password must not be empty"),
+                        "email must not be null", "email must not be empty", "password must not be empty"),
                 () -> assertThat(errors.status()).isEqualTo(HttpStatus.BAD_REQUEST),
                 () -> assertThat(errors).isNotNull()
 
@@ -101,7 +102,7 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
 
         //given && when
 
-        ApiValidationErrorDto errors = performAndExtractMethods("/register", """
+        ApiValidationErrorDto errors = performAndExtractMethods(REGISTER_ENDPOINT, """
                 {
                 "password" : "1234"
                 }
@@ -134,14 +135,4 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
     }
 
 
-    private ApiValidationErrorDto performAndExtractMethodsForApiValidation(String endpoint, String body) throws Exception {
-        MvcResult result = mockMvc.perform(post(endpoint)
-                        .content(body)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String resultJson = result.getResponse().getContentAsString();
-        return objectMapper.readValue(resultJson, ApiValidationErrorDto.class);
-    }
 }

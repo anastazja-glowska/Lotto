@@ -14,7 +14,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NumberReceiverFacade {
 
-
     private final Clock clock;
     private final NumberChecker numberChecker;
     private final DrawDateGenerator drawDateGenerator;

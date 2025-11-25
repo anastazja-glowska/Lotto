@@ -20,12 +20,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
 @Log4j2
 class ResultCheckerFacadeTest {
+
+    private static final Set<Integer> NUMBERS = Set.of(1, 2, 3, 4, 5, 6);
+    private static final Set<Integer> WINNING_NUMBERS = Set.of(1, 2, 3, 4, 5, 6);
+    private static final String TICKET1_HASH_TEST = "001";
+    private static final String TICKET2_HASH_TEST = "002";
+    private static final String TICKET3_HASH_TEST = "003";
 
 
     NumberReceiverFacade numberReceiverFacade = mock(NumberReceiverFacade.class);
@@ -40,7 +47,7 @@ class ResultCheckerFacadeTest {
 
     @Test
     @DisplayName("Should retrieve correct winners")
-    void should_retrieve_correct_winners(){
+    void should_retrieve_correct_winners() {
 
         //given
 
@@ -49,26 +56,26 @@ class ResultCheckerFacadeTest {
 
         when(numberReceiverFacade.retrieveAllTicketsByDrawDate()).thenReturn(List.of(
                 TicketDto.builder()
-                        .numbersFromUser(Set.of(1, 2, 3, 4, 5, 6))
+                        .numbersFromUser(NUMBERS)
                         .drawDate(drawDate)
-                        .ticketId("001")
+                        .ticketId(TICKET1_HASH_TEST)
                         .build(),
                 TicketDto.builder()
                         .numbersFromUser(Set.of(1, 22, 33, 4, 5, 6))
                         .drawDate(drawDate)
-                        .ticketId("002")
+                        .ticketId(TICKET2_HASH_TEST)
                         .build(),
                 TicketDto.builder()
                         .numbersFromUser(Set.of(11, 22, 3, 4, 5, 6))
                         .drawDate(drawDate)
-                        .ticketId("003")
+                        .ticketId(TICKET3_HASH_TEST)
                         .build()
 
-                ));
+        ));
 
         when(numberGeneratorFacade.generateWinningNumbers()).thenReturn(WinningNumbersDto.builder()
-                        .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
-                        .date(drawDate)
+                .winningNumbers(WINNING_NUMBERS)
+                .date(drawDate)
                 .build());
 
 
@@ -79,41 +86,41 @@ class ResultCheckerFacadeTest {
         //then
         PlayerDto playerDto1 = PlayerDto.builder()
                 .isWinner(true)
-                .hash("001")
-                .numbers(Set.of(1, 2, 3, 4, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .hash(TICKET1_HASH_TEST)
+                .numbers(NUMBERS)
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .build();
 
         PlayerDto playerDto2 = PlayerDto.builder()
                 .isWinner(true)
-                .hash("002")
+                .hash(TICKET2_HASH_TEST)
                 .numbers(Set.of(1, 22, 33, 4, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .build();
 
         PlayerDto playerDto3 = PlayerDto.builder()
                 .isWinner(true)
-                .hash("003")
+                .hash(TICKET3_HASH_TEST)
                 .numbers(Set.of(11, 22, 3, 4, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .build();
 
-        assertThat(players).contains(playerDto1, playerDto2, playerDto3);
-        assertThat(result).isNotNull();
-        assertThat(players).hasSize(3);
+        assertAll(
+                () -> assertThat(players).contains(playerDto1, playerDto2, playerDto3),
+                () -> assertThat(result).isNotNull(),
+                () -> assertThat(players).hasSize(3)
+        );
 
 
     }
 
 
-
-
     @Test
     @DisplayName("Should retrieve only winners with min three winning numbers")
-    void should_retrieve_only_winners_with_min_three_winning_numbers(){
+    void should_retrieve_only_winners_with_min_three_winning_numbers() {
 
         //given
 
@@ -121,25 +128,25 @@ class ResultCheckerFacadeTest {
 
         when(numberReceiverFacade.retrieveAllTicketsByDrawDate()).thenReturn(List.of(
                 TicketDto.builder()
-                        .numbersFromUser(Set.of(1, 2, 3, 4, 5, 6))
+                        .numbersFromUser(NUMBERS)
                         .drawDate(drawDate)
-                        .ticketId("001")
+                        .ticketId(TICKET1_HASH_TEST)
                         .build(),
                 TicketDto.builder()
                         .numbersFromUser(Set.of(1, 22, 33, 44, 55, 6))
                         .drawDate(drawDate)
-                        .ticketId("002")
+                        .ticketId(TICKET2_HASH_TEST)
                         .build(),
                 TicketDto.builder()
                         .numbersFromUser(Set.of(11, 22, 3, 4, 5, 6))
                         .drawDate(drawDate)
-                        .ticketId("003")
+                        .ticketId(TICKET3_HASH_TEST)
                         .build()
 
         ));
 
         when(numberGeneratorFacade.generateWinningNumbers()).thenReturn(WinningNumbersDto.builder()
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .date(drawDate)
                 .build());
 
@@ -151,42 +158,44 @@ class ResultCheckerFacadeTest {
         //then
 
         log.info("Players size :" + players.size());
-        log.info("Result " +  result) ;
+        log.info("Result " + result);
 
         PlayerDto playerDto1 = PlayerDto.builder()
                 .isWinner(true)
-                .hash("001")
-                .numbers(Set.of(1, 2, 3, 4, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .hash(TICKET1_HASH_TEST)
+                .numbers(NUMBERS)
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .build();
 
         PlayerDto playerDto2 = PlayerDto.builder()
                 .isWinner(false)
-                .hash("002")
+                .hash(TICKET2_HASH_TEST)
                 .numbers(Set.of(1, 22, 33, 44, 55, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .build();
 
         PlayerDto playerDto3 = PlayerDto.builder()
                 .isWinner(true)
-                .hash("003")
+                .hash(TICKET3_HASH_TEST)
                 .numbers(Set.of(11, 22, 3, 4, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .build();
 
-        assertThat(players).containsOnly(playerDto1, playerDto3);
-        assertThat(result).isNotNull();
-        assertThat(players).hasSize(2);
+        assertAll(
+                () -> assertThat(players).containsOnly(playerDto1, playerDto3),
+                () -> assertThat(result).isNotNull(),
+                () -> assertThat(players).hasSize(2)
+        );
 
 
     }
 
     @Test
     @DisplayName("Should return any players when winning numbers are null")
-    void should_return_any_players_when_winning_numbers_are_null(){
+    void should_return_any_players_when_winning_numbers_are_null() {
         // given
 
 
@@ -194,19 +203,19 @@ class ResultCheckerFacadeTest {
 
         when(numberReceiverFacade.retrieveAllTicketsByDrawDate()).thenReturn(List.of(
                 TicketDto.builder()
-                        .numbersFromUser(Set.of(1, 2, 3, 4, 5, 6))
+                        .numbersFromUser(NUMBERS)
                         .drawDate(drawDate)
-                        .ticketId("001")
+                        .ticketId(TICKET1_HASH_TEST)
                         .build(),
                 TicketDto.builder()
                         .numbersFromUser(Set.of(1, 22, 33, 44, 55, 6))
                         .drawDate(drawDate)
-                        .ticketId("002")
+                        .ticketId(TICKET2_HASH_TEST)
                         .build(),
                 TicketDto.builder()
                         .numbersFromUser(Set.of(11, 22, 3, 4, 5, 6))
                         .drawDate(drawDate)
-                        .ticketId("003")
+                        .ticketId(TICKET3_HASH_TEST)
                         .build()
 
         ));
@@ -228,25 +237,25 @@ class ResultCheckerFacadeTest {
 
     @Test
     @DisplayName("Should find player by given ticket id")
-    void should_find_player_by_given_ticket_id(){
+    void should_find_player_by_given_ticket_id() {
         //given
 
         LocalDateTime drawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
 
         Player player1 = Player.builder()
                 .isWinner(true)
-                .hash("001")
+                .hash(TICKET1_HASH_TEST)
                 .numbers(Set.of(1, 22, 33, 44, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .numberOfHits(3)
                 .build();
 
         Player player2 = Player.builder()
                 .isWinner(true)
-                .hash("002")
-                .numbers(Set.of(1,2, 3, 4, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .hash(TICKET2_HASH_TEST)
+                .numbers(NUMBERS)
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .numberOfHits(6)
                 .build();
@@ -254,29 +263,32 @@ class ResultCheckerFacadeTest {
         playersRepository.saveAll(List.of(player1, player2));
 
 
-
         //when
-        PlayerDto result = resultCheckerFacade.findPlayerByTicketId("002");
+        PlayerDto result = resultCheckerFacade.findPlayerByTicketId(TICKET2_HASH_TEST);
 
         //then
 
         PlayerDto playerDto2 = PlayerDto.builder()
                 .isWinner(false)
-                .hash("002")
+                .hash(TICKET2_HASH_TEST)
                 .numbers(Set.of(1, 22, 33, 44, 55, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .build();
 
-        assertThat(result).isNotNull();
-        assertThat(result.hash()).isEqualTo(playerDto2.hash());
-        assertThat(result.drawDate()).isEqualTo(playerDto2.drawDate());
-        assertThat(result.isWinner()).isEqualTo(player2.isWinner());
+        assertAll(
+                () -> assertThat(result).isNotNull(),
+                () -> assertThat(result.hash()).isEqualTo(playerDto2.hash()),
+                () -> assertThat(result.drawDate()).isEqualTo(playerDto2.drawDate()),
+                () -> assertThat(result.isWinner()).isEqualTo(player2.isWinner())
+        );
+
+
     }
 
     @Test
     @DisplayName("Should throw player not found exception when player not found")
-    void should_throw_player_not_found_exception_when_player_not_found(){
+    void should_throw_player_not_found_exception_when_player_not_found() {
 
         //given
 
@@ -284,16 +296,16 @@ class ResultCheckerFacadeTest {
 
         Player player1 = Player.builder()
                 .isWinner(true)
-                .hash("001")
+                .hash(TICKET1_HASH_TEST)
                 .numbers(Set.of(1, 22, 33, 44, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .numberOfHits(3)
                 .build();
 
         //when
 
-        Throwable throwable = catchThrowable(() -> resultCheckerFacade.findPlayerByTicketId("002"));
+        Throwable throwable = catchThrowable(() -> resultCheckerFacade.findPlayerByTicketId(TICKET2_HASH_TEST));
 
         //then
         assertThat(throwable).isInstanceOf(PlayerNotFoundException.class);

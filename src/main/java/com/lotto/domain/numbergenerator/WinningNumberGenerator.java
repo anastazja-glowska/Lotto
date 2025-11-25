@@ -22,10 +22,6 @@ class WinningNumberGenerator {
     WinningNumbersDto generateWinningNumbers(){
 
         LocalDateTime nextDrawnDate = numberReceiverFacade.retrieveNextDrawnDate();
-//        RandomNumbersDto randomNumbersDto = randomGenerable.generateRandomNumbers(winningNumbersConfig.count(),
-//                winningNumbersConfig.lowerBand(), winningNumbersConfig.upperBand());
-//
-//        Set<Integer> resultWinningNumbers = randomNumbersDto.numbers();
 
         SixRandomNumbersDto resultWinningNumbers = randomNumbersGenerable.generateSixRandomNumber(winningNumbersConfig.count(),
                 winningNumbersConfig.lowerBand(),  winningNumbersConfig.upperBand());

@@ -12,7 +12,3 @@ import java.util.Set;
 @Builder
 public record WinningNumbers(String id, Set<Integer> winningNumbers, LocalDateTime date) {
 }
-
-
-//@Id
-//@Indexed(unique = true)

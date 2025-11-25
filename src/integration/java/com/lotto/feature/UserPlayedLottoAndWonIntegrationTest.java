@@ -56,6 +56,8 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
     private static final String RESULTS_ENDPOINT = "/results";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_TYPE_VALUE = "application/json";
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String AUTHORIZATION_VALUE = "Bearer ";
 
     @Autowired
     NumberGeneratorFacade numberGeneratorFacade;
@@ -70,7 +72,6 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
     PlayersRepository playersRepository;
 
 
-
     private final LocalDateTime drawDate = LocalDateTime.of(2025, 11, 8, 12, 0, 0);
 
     @BeforeEach
@@ -78,7 +79,6 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
         winningNumberRepository.deleteAll();
 
     }
-
 
 
     @Test
@@ -93,7 +93,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE)
-                                .withBody(retrieveNumbers())));
+                        .withBody(retrieveNumbers())));
 
         //  step 2: system generated winning numbers for draw date: 8.11.2025 12:00
 
@@ -132,12 +132,11 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
                 ));
 
 
-
 //        step 4: user made POST /inputNumbers with no jwt token and system returned FORBIDDEN 403
 
         //given && when
 
-        ResultActions failedInputNumbersRequest  = postJson(INPUT_NUMBERS_ENDPOINT, retrieveInputNumbers());
+        ResultActions failedInputNumbersRequest = postJson(INPUT_NUMBERS_ENDPOINT, retrieveInputNumbers());
 
         //then
         failedInputNumbersRequest.andExpect(status().isForbidden());
@@ -158,7 +157,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
         //then
         successRegisteredResult.andExpect(status().isCreated());
         assertAll(
-                ()-> assertThat(registeredUserResponse.id()).isNotNull(),
+                () -> assertThat(registeredUserResponse.id()).isNotNull(),
                 () -> assertThat(registeredUserResponse.email()).isEqualTo("email@gmail.com"),
                 () -> assertThat(registeredUserResponse.isRegistered()).isTrue()
         );
@@ -167,7 +166,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         //given && when
 
-        ResultActions  successLoginRequest = postJson(TOKEN_ENDPOINT, retrieveSomeUserWithSomePassword());
+        ResultActions successLoginRequest = postJson(TOKEN_ENDPOINT, retrieveSomeUserWithSomePassword());
 
         //then
 
@@ -185,7 +184,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         //given & when
         ResultActions perform = mockMvc.perform(post(INPUT_NUMBERS_ENDPOINT)
-                        .header("Authorization", "Bearer " + token)
+                .header(AUTHORIZATION, AUTHORIZATION_VALUE + token)
                 .content(
                         retrieveInputNumbers()
                 )
@@ -199,13 +198,11 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
         String ticketId = inputNumbersResponseDto.ticketDto().ticketId();
 
 
-
         assertAll(
-                () ->    assertThat(inputNumbersResponseDto.ticketDto().drawDate()).isEqualTo(drawDate),
-                () ->  assertThat(inputNumbersResponseDto.message()).isEqualTo("SUCCESS"),
+                () -> assertThat(inputNumbersResponseDto.ticketDto().drawDate()).isEqualTo(drawDate),
+                () -> assertThat(inputNumbersResponseDto.message()).isEqualTo("SUCCESS"),
                 () -> assertThat(ticketId).isNotNull()
         );
-
 
 
         //        step 8 user make GET request /results/{notExistingId} with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned 404
@@ -213,7 +210,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
         //given & when
 
         ResultActions performResultsWithNotExistingId = mockMvc.perform(get(RESULTS_ENDPOINT + "/" + "notExistingId")
-                .header("Authorization", "Bearer " + token));
+                .header(AUTHORIZATION, AUTHORIZATION_VALUE + token));
 
         //then
         performResultsWithNotExistingId.andExpect(status().isNotFound())
@@ -226,8 +223,8 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         // given && when && then
 
-            clock.plusDaysAndMinutes(3, 55);
-            log.info("Clock plus 3 Days and 55 Minutes " +  clock);
+        clock.plusDaysAndMinutes(3, 55);
+        log.info("Clock plus 3 Days and 55 Minutes " + clock);
 
 //        step 10: system generated result for TicketId: sampleTicketId with draw date 8.11.2025 12:00, and saved it with 6 hits
 
@@ -243,17 +240,17 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         playersRepository.save(player);
 
-        log.info("Players repository size " +  playersRepository.findAll().size());
+        log.info("Players repository size " + playersRepository.findAll().size());
 
         //when && then
         await()
                 .atMost(Duration.ofSeconds(25))
                 .pollInterval(Duration.ofSeconds(1))
                 .until(() -> {
-                    try{
+                    try {
                         PlayerDto resultTicket = resultCheckerFacade.findPlayerByTicketId(ticketId);
                         return !resultTicket.numbers().isEmpty();
-                    } catch (PlayerNotFoundException e){
+                    } catch (PlayerNotFoundException e) {
                         return false;
                     }
 
@@ -271,7 +268,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         //given && when
 
-        ResultActions failedGetResultsRequest = mockMvc.perform(get( RESULTS_ENDPOINT+ "/" + ticketId)
+        ResultActions failedGetResultsRequest = mockMvc.perform(get(RESULTS_ENDPOINT + "/" + ticketId)
                 .contentType(MediaType.APPLICATION_JSON));
 
 
@@ -283,8 +280,8 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
 
         //given && when
 
-        MvcResult returnedWinningInfo = mockMvc.perform(get(RESULTS_ENDPOINT+ "/" + ticketId)
-                .header("Authorization", "Bearer " + token)).andReturn();
+        MvcResult returnedWinningInfo = mockMvc.perform(get(RESULTS_ENDPOINT + "/" + ticketId)
+                .header(AUTHORIZATION, AUTHORIZATION_VALUE + token)).andReturn();
         String winningInfoJson = returnedWinningInfo.getResponse().getContentAsString();
         ResultMessageDto resultMessageDto = objectMapper.readValue(winningInfoJson, ResultMessageDto.class);
 
@@ -299,7 +296,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
                 () -> assertThat(resultMessageDto.resultDto().winningNumbers()).hasSize(6),
                 () -> assertThat(resultMessageDto.resultDto().numbers()).isEqualTo(Set.of(1, 2, 3, 4, 5, 6)),
                 () -> assertThat(resultMessageDto.message()).isEqualTo("You are a winner! Congratulations!")
-                        );
+        );
 
 
     }
@@ -307,7 +304,7 @@ class UserPlayedLottoAndWonIntegrationTest extends BaseIntegrationTest implement
     private ResultActions postJson(String endpoint, String body) throws Exception {
 
         return mockMvc.perform(post(endpoint)
-                        .content(body)
+                .content(body)
                 .contentType(MediaType.APPLICATION_JSON));
     }
 }

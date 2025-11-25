@@ -16,11 +16,15 @@ import java.time.ZoneOffset;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.when;
 
 @Log4j2
 class ResultAnnouncerFacadeTest {
+
+    private static final Set<Integer> NUMBERS = Set.of(1, 2, 3, 4, 5, 6);
+    private static final Set<Integer> WINNING_NUMBERS = Set.of(1, 2, 3, 4, 5, 6);
+    private static final String TICKET_HASH_TEST = "001";
 
     ResultRepository resultRepository = new ResultRepositoryTestImpl();
     Clock clock = Clock.systemUTC();
@@ -34,14 +38,14 @@ class ResultAnnouncerFacadeTest {
 
     @Test
     @DisplayName("Should return already checked info when result repository found by id")
-    void should_return_already_checked_info_when_result_repository_found_by_id(){
+    void should_return_already_checked_info_when_result_repository_found_by_id() {
         LocalDateTime drawDate = LocalDateTime.of(2025, 11, 8, 12, 0, 0);
 
         //given
         ResultAnswer resultAnswer = ResultAnswer.builder()
-                .hash("001")
-                .numbers(Set.of(1, 2, 3, 4, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .hash(TICKET_HASH_TEST)
+                .numbers(NUMBERS)
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .isWinner(true)
                 .build();
@@ -49,37 +53,39 @@ class ResultAnnouncerFacadeTest {
         resultRepository.save(resultAnswer);
 
         //when
-        ResultMessageDto result = resultAnnouncerFacade.checkPlayResultByHash("001");
+        ResultMessageDto result = resultAnnouncerFacade.checkPlayResultByHash(TICKET_HASH_TEST);
 
         //then
         String message = result.message();
-        log.info("Message " +  message);
+
+        log.info("Message " + message);
         ResultDto resultDto = result.resultDto();
 
         ResultDto expectedResultDto = ResultDto.builder()
-                .hash("001")
+                .hash(TICKET_HASH_TEST)
                 .isWinner(true)
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
-                .numbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
+                .numbers(NUMBERS)
                 .drawDate(drawDate)
                 .build();
 
 
-        assertThat(message).isEqualTo(MessageAnswer.ALREADY_CHECKED_INFO.message);
-        assertThat(resultDto.drawDate()).isEqualTo(expectedResultDto.drawDate());
-        assertThat(resultDto.isWinner()).isEqualTo(expectedResultDto.isWinner());
-        assertThat(resultDto.winningNumbers()).isEqualTo(expectedResultDto.winningNumbers());
-
+        assertAll(
+                () -> assertThat(message).isEqualTo(MessageAnswer.ALREADY_CHECKED_INFO.message),
+                () -> assertThat(resultDto.drawDate()).isEqualTo(expectedResultDto.drawDate()),
+                () -> assertThat(resultDto.isWinner()).isEqualTo(expectedResultDto.isWinner()),
+                () -> assertThat(resultDto.winningNumbers()).isEqualTo(expectedResultDto.winningNumbers())
+        );
     }
 
     @Test
     @DisplayName("Should return hash not exist message when ticket id is null")
-    void should_return_hash_not_exist_message_when_ticket_id_is_null(){
+    void should_return_hash_not_exist_message_when_ticket_id_is_null() {
         // given
-        when(resultCheckerFacade.findPlayerByTicketId("001")).thenReturn(null);
+        when(resultCheckerFacade.findPlayerByTicketId(TICKET_HASH_TEST)).thenReturn(null);
 
         //when
-        ResultMessageDto result = resultAnnouncerFacade.checkPlayResultByHash("001");
+        ResultMessageDto result = resultAnnouncerFacade.checkPlayResultByHash(TICKET_HASH_TEST);
 
         //then
         String resultMessage = result.message();
@@ -98,7 +104,7 @@ class ResultAnnouncerFacadeTest {
 
     @Test
     @DisplayName("Should return wait info when draw date is not passed")
-    void should_return_wait_info_when_draw_date_is_not_passed(){
+    void should_return_wait_info_when_draw_date_is_not_passed() {
 
         //given
 
@@ -106,7 +112,6 @@ class ResultAnnouncerFacadeTest {
                 .toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
 
         LocalDateTime drawDate = LocalDateTime.of(2025, 11, 15, 12, 0, 0);
-
 
 
         ResultAnnounceRetriever resultAnnounceRetriever1 = new ResultAnnounceRetriever(resultRepository,
@@ -117,71 +122,71 @@ class ResultAnnouncerFacadeTest {
 
 
         ResultAnswer resultAnswer = ResultAnswer.builder()
-                .hash("001")
-                .numbers(Set.of(1, 2, 3, 4, 5, 6))
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .hash(TICKET_HASH_TEST)
+                .numbers(NUMBERS)
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
                 .isWinner(true)
                 .build();
 
         PlayerDto playerDto = PlayerDto.builder()
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
-                .numbers(Set.of(1, 2, 3, 4, 5, 6))
-                .hash("001")
+                .numbers(NUMBERS)
+                .hash(TICKET_HASH_TEST)
                 .isWinner(true)
                 .build();
 
 
-        when(resultCheckerFacade.findPlayerByTicketId("001")).thenReturn(playerDto);
+        when(resultCheckerFacade.findPlayerByTicketId(TICKET_HASH_TEST)).thenReturn(playerDto);
 
         resultRepository.save(resultAnswer);
 
         //when
-        ResultMessageDto result = resultAnnouncerFacade1.checkPlayResultByHash("001");
+        ResultMessageDto result = resultAnnouncerFacade1.checkPlayResultByHash(TICKET_HASH_TEST);
 
 
         //then
         String message = result.message();
-        log.info("Message " +  message);
+        log.info("Message " + message);
         ResultDto resultDto = result.resultDto();
 
         ResultDto expectedResultDto = ResultDto.builder()
-                .hash("001")
+                .hash(TICKET_HASH_TEST)
                 .isWinner(true)
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
-                .numbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
+                .numbers(NUMBERS)
                 .drawDate(drawDate)
                 .build();
 
-        assertThat(message).isEqualTo(MessageAnswer.WAIT_INFO.message);
-        assertThat(resultDto.drawDate()).isEqualTo(expectedResultDto.drawDate());
-        assertThat(resultDto.isWinner()).isEqualTo(expectedResultDto.isWinner());
-        assertThat(resultDto.winningNumbers()).isEqualTo(expectedResultDto.winningNumbers());
-        assertThat(resultDto.numbers()).isEqualTo(expectedResultDto.numbers());
-
+        assertAll(
+                () -> assertThat(message).isEqualTo(MessageAnswer.WAIT_INFO.message),
+                () -> assertThat(resultDto.drawDate()).isEqualTo(expectedResultDto.drawDate()),
+                () -> assertThat(resultDto.isWinner()).isEqualTo(expectedResultDto.isWinner()),
+                () -> assertThat(resultDto.winningNumbers()).isEqualTo(expectedResultDto.winningNumbers()),
+                () -> assertThat(resultDto.numbers()).isEqualTo(expectedResultDto.numbers())
+        );
 
 
     }
 
     @Test
     @DisplayName("Should return win info when given numbers are winning numbers")
-    void should_return_win_info_when_given_numbers_are_winning_numbers(){
+    void should_return_win_info_when_given_numbers_are_winning_numbers() {
 
         // given
 
         LocalDateTime drawDate = LocalDateTime.of(2025, 11, 8, 12, 0, 0);
 
         PlayerDto playerDto = PlayerDto.builder()
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
-                .numbers(Set.of(1, 2, 3, 4, 5, 6))
-                .hash("001")
+                .numbers(NUMBERS)
+                .hash(TICKET_HASH_TEST)
                 .isWinner(true)
                 .build();
 
-        when(resultCheckerFacade.findPlayerByTicketId("001")).thenReturn(playerDto);
-
+        when(resultCheckerFacade.findPlayerByTicketId(TICKET_HASH_TEST)).thenReturn(playerDto);
 
 
         //when
@@ -190,29 +195,28 @@ class ResultAnnouncerFacadeTest {
         //then
 
         String resultMessage = result.message();
-        log.info("Message " +  resultMessage);
+        log.info("Message " + resultMessage);
         assertThat(resultMessage).isEqualTo(MessageAnswer.WIN_INFO.message);
     }
 
 
-
     @Test
     @DisplayName("Should return lose info when given numbers are not winning numbers")
-    void should_return_lose_info_when_given_numbers_are_not_winning_numbers(){
+    void should_return_lose_info_when_given_numbers_are_not_winning_numbers() {
 
         // given
 
         LocalDateTime drawDate = LocalDateTime.of(2025, 11, 8, 12, 0, 0);
 
         PlayerDto playerDto = PlayerDto.builder()
-                .winningNumbers(Set.of(1, 2, 3, 4, 5, 6))
+                .winningNumbers(WINNING_NUMBERS)
                 .drawDate(drawDate)
-                .numbers(Set.of(1, 22, 33, 44, 55, 6))
-                .hash("001")
+                .numbers(NUMBERS)
+                .hash(TICKET_HASH_TEST)
                 .isWinner(false)
                 .build();
 
-        when(resultCheckerFacade.findPlayerByTicketId("001")).thenReturn(playerDto);
+        when(resultCheckerFacade.findPlayerByTicketId(TICKET_HASH_TEST)).thenReturn(playerDto);
 
 
         //when
@@ -221,7 +225,7 @@ class ResultAnnouncerFacadeTest {
         //then
 
         String resultMessage = result.message();
-        log.info("Message " +  resultMessage);
+        log.info("Message " + resultMessage);
         assertThat(resultMessage).isEqualTo(MessageAnswer.LOSE_INFO.message);
     }
 }
