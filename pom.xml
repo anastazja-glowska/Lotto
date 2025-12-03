@@ -103,6 +103,8 @@
         </dependency>
 
 
+
+
         <!-- WIREMOCK -->
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
@@ -160,6 +162,7 @@
     </dependencies>
 
     <build>
+        <finalName>lotto</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
