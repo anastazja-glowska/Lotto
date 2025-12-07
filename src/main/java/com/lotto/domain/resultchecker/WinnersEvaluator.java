@@ -14,7 +14,7 @@ class WinnersEvaluator {
 
     private static final Integer MINIMAL_WON_NUMBERS = 3;
 
-    List<Player> evaluateWinners(List<Ticket> allTickets, Set<Integer> winningNumbers){
+    List<Player> evaluateWinners(List<Ticket> allTickets, Set<Integer> winningNumbers) {
 
         List<Player> playerList = allTickets.stream()
                 .map(ticket -> {
@@ -28,22 +28,21 @@ class WinnersEvaluator {
     }
 
 
-
-    private Integer countMatchesHits(Ticket ticket, Set<Integer> winningNumbers){
+    private Integer countMatchesHits(Ticket ticket, Set<Integer> winningNumbers) {
         long counted = ticket.numbersFromUser().stream()
                 .filter(winningNumbers::contains)
                 .count();
 
-        return (int)counted;
+        return (int) counted;
 
 
     }
 
-    private Player createPlayerResult(Ticket ticket, Integer numberOfHits,  Set<Integer> winningNumbers){
+    private Player createPlayerResult(Ticket ticket, Integer numberOfHits, Set<Integer> winningNumbers) {
 
         Player.PlayerBuilder player = Player.builder();
 
-        if(numberOfHits >= MINIMAL_WON_NUMBERS){
+        if (numberOfHits >= MINIMAL_WON_NUMBERS) {
             player.isWinner(true);
         }
 

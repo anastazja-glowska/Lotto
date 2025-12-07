@@ -14,7 +14,7 @@ public class RandomGeneratorClientConfig {
 
 
     @Bean
-    public RestTemplateResponseErrorHandler restTemplateResponseErrorHandler(){
+    public RestTemplateResponseErrorHandler restTemplateResponseErrorHandler() {
         return new RestTemplateResponseErrorHandler();
     }
 
@@ -34,7 +34,7 @@ public class RandomGeneratorClientConfig {
     @Bean
     public RandomNumbersGenerable remoteNumberGeneratorClient(RestTemplate restTemplate,
                                                               @Value("${lotto.number-generator.http.client.config.uri}") String uri,
-                                                              @Value("${lotto.number-generator.http.client.config.port}") int port){
+                                                              @Value("${lotto.number-generator.http.client.config.port}") int port) {
 
         return new RandomNumbersGeneratorRestTemplate(restTemplate, uri, port);
     }

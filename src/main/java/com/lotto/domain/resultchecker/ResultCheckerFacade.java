@@ -11,12 +11,12 @@ public class ResultCheckerFacade {
 
     private final ResultRetriever resultRetriever;
 
-    public AllPlayersDto retrieveWinners(){
+    public AllPlayersDto retrieveWinners() {
         return resultRetriever.retrieveWinners();
     }
 
-    public PlayerDto findPlayerByTicketId(String ticketId){
-        return  resultRetriever.findPlayerByTicketId(ticketId);
+    public PlayerDto findPlayerByTicketId(String ticketId) {
+        return resultRetriever.findPlayerByTicketId(ticketId);
     }
 
 

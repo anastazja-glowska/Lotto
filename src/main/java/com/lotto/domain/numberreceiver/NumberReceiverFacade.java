@@ -19,32 +19,29 @@ public class NumberReceiverFacade {
     private final DrawDateGenerator drawDateGenerator;
     private final TicketRepository ticketRepository;
 
-    public InputNumbersResponseDto inputNumbers(Set<Integer> numbersFromUser){
-    return numberChecker.checkInputNumbers(numbersFromUser);
+    public InputNumbersResponseDto inputNumbers(Set<Integer> numbersFromUser) {
+        return numberChecker.checkInputNumbers(numbersFromUser);
 
     }
 
-    public List<TicketDto> retrieveAllTicketsByDrawDate(){
+    public List<TicketDto> retrieveAllTicketsByDrawDate() {
         return numberChecker.retrieveAllTicketsByDrawDate();
     }
 
 
-
-    public List<TicketDto> retrieveAllTicketsByDrawDate(LocalDateTime drawDate){
+    public List<TicketDto> retrieveAllTicketsByDrawDate(LocalDateTime drawDate) {
         return numberChecker.retrieveAllTicketsByDrawDate(drawDate);
     }
 
-    public LocalDateTime retrieveNextDrawnDate(){
+    public LocalDateTime retrieveNextDrawnDate() {
         return drawDateGenerator.getNextDrawnDate();
     }
 
-    public TicketDto findTicketByHash(String hash){
+    public TicketDto findTicketByHash(String hash) {
         Ticket ticket = ticketRepository.findTicketByHash(hash)
                 .orElseThrow(() -> new TicketNotFoundException("Ticket not found"));
         return TicketMapper.mapFromTicket(ticket);
     }
-
-
 
 
 }

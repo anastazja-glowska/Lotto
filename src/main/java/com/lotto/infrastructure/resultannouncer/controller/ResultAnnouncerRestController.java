@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class ResultAnnouncerRestController {
-    
+
     private final ResultAnnouncerFacade resultAnnouncerFacade;
 
     @GetMapping("/results/{id}")
-    public ResponseEntity<ResultMessageDto> checkResultsById(@PathVariable String id){
+    public ResponseEntity<ResultMessageDto> checkResultsById(@PathVariable String id) {
         ResultMessageDto result = resultAnnouncerFacade.checkPlayResultByHash(id);
-        return  ResponseEntity.ok(result);
+        return ResponseEntity.ok(result);
     }
 }

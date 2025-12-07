@@ -17,14 +17,14 @@ class ResultAnnounceRetriever {
     private final ResultCheckerFacade resultChecker;
     private final Clock clock;
 
-    ResultMessageDto checkPlayResultByHash(String hash){
-        if(resultRepository.existsById(hash)){
+    ResultMessageDto checkPlayResultByHash(String hash) {
+        if (resultRepository.existsById(hash)) {
             Optional<ResultAnswer> cachedResult = resultRepository.findById(hash);
-            if(cachedResult.isPresent()){
+            if (cachedResult.isPresent()) {
                 ResultAnswer resultAnswer = cachedResult.get();
                 ResultDto resultDto = ResultAnnounceMapper.mapFromResultAnswer(resultAnswer);
-                if(!hasDrawDatePassed(resultDto.drawDate())){
-                    return new ResultMessageDto(MessageAnswer.WAIT_INFO.message,  resultDto);
+                if (!hasDrawDatePassed(resultDto.drawDate())) {
+                    return new ResultMessageDto(MessageAnswer.WAIT_INFO.message, resultDto);
                 }
 
                 return new ResultMessageDto(MessageAnswer.ALREADY_CHECKED_INFO.message, resultDto);
@@ -34,7 +34,7 @@ class ResultAnnounceRetriever {
 
 
         PlayerDto playerDto = resultChecker.findPlayerByTicketId(hash);
-        if(playerDto==null){
+        if (playerDto == null) {
             return new ResultMessageDto(MessageAnswer.HASH_DOES_NOT_EXIST.message, ResultDto.builder().build());
         }
 
@@ -43,21 +43,20 @@ class ResultAnnounceRetriever {
         resultRepository.save(resultAnswer);
 
 
-
-        if(resultChecker.findPlayerByTicketId(hash).isWinner()){
+        if (resultChecker.findPlayerByTicketId(hash).isWinner()) {
             return new ResultMessageDto(MessageAnswer.WIN_INFO.message, resultDto);
         }
 
-        return new ResultMessageDto(MessageAnswer.LOSE_INFO.message,  resultDto);
+        return new ResultMessageDto(MessageAnswer.LOSE_INFO.message, resultDto);
 
 
     }
 
-    private boolean hasDrawDatePassed(LocalDateTime drawDate){
+    private boolean hasDrawDatePassed(LocalDateTime drawDate) {
         return LocalDateTime.now(clock).isAfter(drawDate);
     }
 
-    private static ResultAnswer toResultAnswer(ResultDto resultDto, LocalDateTime now){
+    private static ResultAnswer toResultAnswer(ResultDto resultDto, LocalDateTime now) {
         return ResultAnswer.builder()
                 .numbers(resultDto.numbers())
                 .winningNumbers(resultDto.winningNumbers())

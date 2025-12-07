@@ -21,7 +21,7 @@ class RegisterController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
-    public ResponseEntity<UserRegisterResponseDto> register(@RequestBody @Valid UserRegisterRequestDto registerUserDto){
+    public ResponseEntity<UserRegisterResponseDto> register(@RequestBody @Valid UserRegisterRequestDto registerUserDto) {
 
         String encodedPassword = passwordEncoder.encode(registerUserDto.password());
         UserRegisterResponseDto registered = loginAndRegisterFacade.register(

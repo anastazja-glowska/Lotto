@@ -21,7 +21,7 @@ public class TokenControllerErrorHandler {
     @ExceptionHandler(DuplicateKeyException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    public RegisterErrorResponseDto handleDuplicateKeyException(DuplicateKeyException exception){
+    public RegisterErrorResponseDto handleDuplicateKeyException(DuplicateKeyException exception) {
         log.error(DUPLICATE_KEY + exception.getMessage());
         return new RegisterErrorResponseDto(USER_ALREADY_EXISTS, HttpStatus.CONFLICT);
     }
@@ -29,7 +29,7 @@ public class TokenControllerErrorHandler {
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public RegisterErrorResponseDto handleBadCredentialsException(BadCredentialsException exception){
+    public RegisterErrorResponseDto handleBadCredentialsException(BadCredentialsException exception) {
         log.error(BAD_CREDENTIALS + exception.getMessage());
         return new RegisterErrorResponseDto(BAD_CREDENTIALS, HttpStatus.UNAUTHORIZED);
     }

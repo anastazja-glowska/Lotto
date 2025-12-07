@@ -39,11 +39,11 @@ class RandomNumbersGeneratorRestTemplate implements RandomNumbersGenerable {
         final HttpHeaders headers = new HttpHeaders();
         final HttpEntity<HttpHeaders> requestEntity = new HttpEntity<>(headers);
 
-        try{
+        try {
 
             ResponseEntity<List<Integer>> responseEntity = makeGetRequest(count, lowerBand, upperBand, requestEntity);
             Set<Integer> sixDistinctRandomNumbers = getSixDistinctRandomNumbers(responseEntity);
-            if(sixDistinctRandomNumbers.size() < MAXIMAL_WINNING_NUMBERS){
+            if (sixDistinctRandomNumbers.size() < MAXIMAL_WINNING_NUMBERS) {
 
                 log.error("Six distinct random numbers were not generated, size is not correct!");
                 return generateSixRandomNumber(count, lowerBand, upperBand);
@@ -55,19 +55,18 @@ class RandomNumbersGeneratorRestTemplate implements RandomNumbersGenerable {
                     .build();
 
 
-
-        }catch (ResourceAccessException e){
+        } catch (ResourceAccessException e) {
             log.error("Error while getting generated winning numbers!");
 
             throw new ResourceAccessException("500 INTERNAL SERVER ERROR");
         }
 
     }
-    
-    private Set<Integer> getSixDistinctRandomNumbers(ResponseEntity<List<Integer>> entity){
+
+    private Set<Integer> getSixDistinctRandomNumbers(ResponseEntity<List<Integer>> entity) {
 
         List<Integer> numbers = entity.getBody();
-        if(numbers == null || numbers.isEmpty()){
+        if (numbers == null || numbers.isEmpty()) {
             log.error("No numbers found");
             throw new NoContentException("204 NO_CONTENT");
         }
@@ -80,7 +79,7 @@ class RandomNumbersGeneratorRestTemplate implements RandomNumbersGenerable {
     }
 
     private ResponseEntity<List<Integer>> makeGetRequest(int count, int lowerBand, int upperBand,
-                                                                 HttpEntity<HttpHeaders> entity){
+                                                         HttpEntity<HttpHeaders> entity) {
 
         final String uriString = UriComponentsBuilder.fromHttpUrl(getUrlForService(RANDOM_NUMBER_SERVICE_PATH))
                 .queryParam("min", lowerBand)
@@ -96,7 +95,7 @@ class RandomNumbersGeneratorRestTemplate implements RandomNumbersGenerable {
         return response;
     }
 
-    private String getUrlForService(String service){
+    private String getUrlForService(String service) {
         return uri + ":" + port + service;
     }
 }

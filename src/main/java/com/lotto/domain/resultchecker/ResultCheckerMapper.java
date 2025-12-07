@@ -7,7 +7,7 @@ import java.util.List;
 
 class ResultCheckerMapper {
 
-    static List<Ticket> mapFromTicketDto(List<TicketDto> ticketDtoList){
+    static List<Ticket> mapFromTicketDto(List<TicketDto> ticketDtoList) {
 
         return ticketDtoList.stream()
                 .map(ticketDto -> Ticket.builder()
@@ -19,7 +19,7 @@ class ResultCheckerMapper {
 
     }
 
-    static List<PlayerDto> mapFromPlayers(List<Player> players){
+    static List<PlayerDto> mapFromPlayers(List<Player> players) {
 
         return players.stream()
                 .map(player -> PlayerDto.builder()
@@ -31,7 +31,7 @@ class ResultCheckerMapper {
                 .toList();
     }
 
-    static PlayerDto mapFromPlayer(Player player){
+    static PlayerDto mapFromPlayer(Player player) {
         return PlayerDto.builder()
                 .numbers(player.numbers())
                 .hash(player.hash())

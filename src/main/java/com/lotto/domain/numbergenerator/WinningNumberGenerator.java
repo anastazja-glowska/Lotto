@@ -19,29 +19,28 @@ class WinningNumberGenerator {
     private final WinningNumberRepository winningNumberRepository;
     private final RandomNumbersGenerable randomNumbersGenerable;
 
-    WinningNumbersDto generateWinningNumbers(){
+    WinningNumbersDto generateWinningNumbers() {
 
         LocalDateTime nextDrawnDate = numberReceiverFacade.retrieveNextDrawnDate();
 
         SixRandomNumbersDto resultWinningNumbers = randomNumbersGenerable.generateSixRandomNumber(winningNumbersConfig.count(),
-                winningNumbersConfig.lowerBand(),  winningNumbersConfig.upperBand());
+                winningNumbersConfig.lowerBand(), winningNumbersConfig.upperBand());
         numberValidator.validateNumbers(resultWinningNumbers.numbers());
 
         WinningNumbers winningNumbers = saveWinningNumbers(nextDrawnDate, resultWinningNumbers.numbers());
         return mapFromWinningNumber(winningNumbers);
 
 
-
     }
 
-    WinningNumbersDto findWinningNumbersByDate(LocalDateTime date){
+    WinningNumbersDto findWinningNumbersByDate(LocalDateTime date) {
         WinningNumbers winningNumbers = winningNumberRepository.findByDate(date)
                 .orElseThrow(() -> new WinningNumbersNotFoundException("Winning numbers not found!"));
 
-        return  mapFromWinningNumber(winningNumbers);
+        return mapFromWinningNumber(winningNumbers);
     }
 
-    boolean areWinningNumbersExistingByDate(){
+    boolean areWinningNumbersExistingByDate() {
         LocalDateTime nextDrawnDate = numberReceiverFacade.retrieveNextDrawnDate();
         return winningNumberRepository.existsByDate(nextDrawnDate);
     }
@@ -62,6 +61,5 @@ class WinningNumberGenerator {
                 .winningNumbers(winningNumbers.winningNumbers())
                 .build();
     }
-
 
 }

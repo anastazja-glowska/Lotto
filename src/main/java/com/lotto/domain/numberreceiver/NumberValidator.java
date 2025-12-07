@@ -23,26 +23,24 @@ class NumberValidator {
     List<ValidationInfo> validateUserNumbers(Set<Integer> userNumbers) {
         validationInfos = new LinkedList<>();
 
-        if(userNumbers.size() != MAX_ALL_NUMBERS_FROM_USER){
+        if (userNumbers.size() != MAX_ALL_NUMBERS_FROM_USER) {
             validationInfos.add(ValidationInfo.SIX_NUMBERS_ARE_NOT_PROVIDEN);
         }
 
-        if(!areAllNumbersInRange(userNumbers)){
+        if (!areAllNumbersInRange(userNumbers)) {
             validationInfos.add(ValidationInfo.NUMBERS_NOT_IN_RANGE);
         }
 
         return validationInfos;
 
 
-
     }
 
-    String allResultMessage(){
+    String allResultMessage() {
         return this.validationInfos.stream()
                 .map(validationInfo -> validationInfo.message)
                 .collect(Collectors.joining(","));
     }
-
 
 
     boolean areAllNumbersInRange(Set<Integer> numbersFromUser) {

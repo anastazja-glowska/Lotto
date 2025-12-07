@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class RedisOffersCacheIntegrationTest extends BaseIntegrationTest implements WireMockLottoResponse {
+class RedisLottoCacheIntegrationTest extends BaseIntegrationTest implements WireMockLottoResponse {
 
     private static final String INPUT_NUMBERS_ENDPOINT = "/inputNumbers";
     private static final String TOKEN_ENDPOINT = "/token";

@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 class ResultCheckerConfiguration {
 
     @Bean
-    ResultRetriever resultRetriever(NumberReceiverFacade  numberReceiverFacade, NumberGeneratorFacade  numberGeneratorFacade,
+    ResultRetriever resultRetriever(NumberReceiverFacade numberReceiverFacade, NumberGeneratorFacade numberGeneratorFacade,
                                     PlayersRepository playersRepository, WinnersEvaluator winnersEvaluator) {
 
-        return  new ResultRetriever(numberReceiverFacade, numberGeneratorFacade,
+        return new ResultRetriever(numberReceiverFacade, numberGeneratorFacade,
                 winnersEvaluator, playersRepository);
 
     }
@@ -22,7 +22,4 @@ class ResultCheckerConfiguration {
     ResultCheckerFacade resultCheckerFacade(ResultRetriever resultRetriever) {
         return new ResultCheckerFacade(resultRetriever);
     }
-
-
-
 }

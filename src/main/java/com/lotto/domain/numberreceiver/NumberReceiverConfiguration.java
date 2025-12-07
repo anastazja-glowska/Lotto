@@ -44,8 +44,7 @@ public class NumberReceiverConfiguration {
         DrawDateGenerator drawDateGenerator = new DrawDateGenerator(clock);
 
         NumberChecker numberChecker = numberChecker(numberValidator(), drawDateGenerator,
-                hashGenerator, ticketRepository );
-
+                hashGenerator, ticketRepository);
 
 
         return new NumberReceiverFacade(clock, numberChecker, drawDateGenerator, ticketRepository);

@@ -12,22 +12,21 @@ import java.time.Clock;
 class NumberGeneratorConfig {
 
 
-
     @Bean
-    WinningNumberGenerator winningNumberGenerator(NumberReceiverFacade  numberReceiverFacade,
-                                                 RandomGenerable randomGenerable, WinningNumberRepository winningNumberRepository,
+    WinningNumberGenerator winningNumberGenerator(NumberReceiverFacade numberReceiverFacade,
+                                                  RandomGenerable randomGenerable, WinningNumberRepository winningNumberRepository,
                                                   WinningNumberGeneratorConfiguration winningNumberGeneratorConfiguration,
-                                                  RandomNumbersGenerable randomNumbersGenerable){
+                                                  RandomNumbersGenerable randomNumbersGenerable) {
         NumberValidator numberValidator = new NumberValidator();
 
         return new WinningNumberGenerator(numberReceiverFacade, winningNumberGeneratorConfiguration,
-                randomGenerable, numberValidator, winningNumberRepository, randomNumbersGenerable );
+                randomGenerable, numberValidator, winningNumberRepository, randomNumbersGenerable);
 
     }
 
 
     @Bean
-    NumberGeneratorFacade  numberGeneratorFacade(WinningNumberGenerator winningNumberGenerator){
+    NumberGeneratorFacade numberGeneratorFacade(WinningNumberGenerator winningNumberGenerator) {
 
         return new NumberGeneratorFacade(winningNumberGenerator);
     }

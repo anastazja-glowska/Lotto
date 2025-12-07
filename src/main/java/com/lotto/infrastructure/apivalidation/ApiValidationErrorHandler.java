@@ -17,12 +17,12 @@ public class ApiValidationErrorHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ApiValidationErrorDto handleValidationException(MethodArgumentNotValidException e){
+    public ApiValidationErrorDto handleValidationException(MethodArgumentNotValidException e) {
         final List<String> errorsFromException = getErrorsFromException(e);
         return new ApiValidationErrorDto(errorsFromException, HttpStatus.BAD_REQUEST);
     }
 
-    private List<String> getErrorsFromException(MethodArgumentNotValidException e){
+    private List<String> getErrorsFromException(MethodArgumentNotValidException e) {
         return e.getBindingResult()
                 .getAllErrors()
                 .stream()
